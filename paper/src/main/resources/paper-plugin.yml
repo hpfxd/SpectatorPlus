@@ -1,0 +1,9 @@
+name: SpectatorPlus
+version: "$version"
+description: "$description"
+website: "https://github.com/hpfxd/SpectatorPlus"
+api-version: "1.20"
+main: "com.hpfxd.spectatorplus.paper.SpectatorPlugin"
+load: STARTUP
+authors:
+  - hpfxd

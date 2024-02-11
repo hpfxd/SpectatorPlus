@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "id": "spectatorplus",
+  "version": "${version}",
+  "name": "SpectatorPlus",
+  "description": "${description}",
+  "authors": [
+    {
+      "name": "hpfxd",
+      "contact": {
+        "homepage": "https://hpfxd.com"
+      }
+    }
+  ],
+  "contact": {
+    "homepage": "https://github.com/hpfxd/SpectatorPlus",
+    "sources": "https://github.com/hpfxd/SpectatorPlus",
+    "issues": "https://github.com/hpfxd/SpectatorPlus/issues"
+  },
+  "license": "GPL-3.0-or-later",
+  "icon": "assets/spectatorplus/icon.png",
+  "environment": "*",
+  "accessWidener": "spectatorplus.accesswidener",
+  "entrypoints": {
+    "main": [
+      "com.hpfxd.spectatorplus.fabric.SpectatorMod"
+    ],
+    "client": [
+      "com.hpfxd.spectatorplus.fabric.client.SpectatorClientMod"
+    ]
+  },
+  "custom": {
+    "fabric-renderer-api-v1:contains_renderer": true,
+    "modmenu": {
+      "links": {
+        "modmenu.modrinth": "https://modrinth.com/project/spectatorplus"
+      }
+    }
+  },
+  "mixins": [
+    {
+      "config": "spectatorplus.mixins.json",
+      "environment": "*"
+    },
+    {
+      "config": "spectatorplus.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "minecraft": "~1.20.4",
+    "java": ">=17",
+    "fabric-api": "*"
+  }
+}

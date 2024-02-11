@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "package": "com.hpfxd.spectatorplus.fabric.client.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "client": [
+    "GameRendererMixin",
+    "GuiMixin",
+    "ItemInHandRendererAccessor",
+    "ItemInHandRendererMixin",
+    "MinecraftMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
