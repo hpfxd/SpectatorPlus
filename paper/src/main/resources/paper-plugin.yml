@@ -7,3 +7,14 @@ main: "com.hpfxd.spectatorplus.paper.SpectatorPlugin"
 load: STARTUP
 authors:
   - hpfxd
+
+permissions:
+  spectatorplus.sync.experience:
+    description: "Allows the player to receive the experience value of the spectated target"
+    default: true
+  spectatorplus.sync.food:
+    description: "Allows the player to receive the food value of the spectated target"
+    default: true
+  spectatorplus.sync.hotbar:
+    description: "Allows the player to receive the hotbar items and selected slot of the spectated target"
+    default: true

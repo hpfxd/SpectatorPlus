@@ -1,6 +1,7 @@
 package com.hpfxd.spectatorplus.fabric.sync.packet;
 
 import com.hpfxd.spectatorplus.fabric.sync.ClientboundSyncPacket;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -15,6 +16,7 @@ public record ClientboundExperienceSyncPacket(
         int level
 ) implements ClientboundSyncPacket {
     public static final PacketType<ClientboundExperienceSyncPacket> TYPE = PacketType.create(new ResourceLocation("spectatorplus", "experience_sync"), ClientboundExperienceSyncPacket::new);
+    private static final String PERMISSION = "spectatorplus.sync.experience";
 
     public static ClientboundExperienceSyncPacket initializing(ServerPlayer target) {
         return new ClientboundExperienceSyncPacket(target.getUUID(), target.experienceProgress, target.getXpNeededForNextLevel(), target.experienceLevel);
@@ -35,5 +37,10 @@ public record ClientboundExperienceSyncPacket(
     @Override
     public PacketType<?> getType() {
         return TYPE;
+    }
+
+    @Override
+    public boolean canSend(ServerPlayer receiver) {
+        return Permissions.check(receiver, PERMISSION, true);
     }
 }

@@ -18,3 +18,16 @@ with spectator mode.
 In order for all of the mod's features to be enabled, the mod needs to be installed on the server side as well.
 This is because Minecraft normally does not send some needed data to clients. Fabric and Paper are supported for the
 server-side.
+
+## Permissions
+
+SpectatorPlus has permissions included that you can use to control which players receive extra information about the
+player they are spectating. **By default, all players have access to all information and no setup is required.** If you
+would like to change this, you can use a permissions plugin/mod such as [LuckPerms](https://luckperms.net/). On Fabric,
+SpectatorPlus uses [fabric-permissions-api](https://github.com/lucko/fabric-permissions-api/) to check permissions.
+
+| Permission                      | Description                                                                             |
+|---------------------------------|-----------------------------------------------------------------------------------------|
+| `spectatorplus.sync.experience` | Allows the player to receive the experience value of the spectated target               |
+| `spectatorplus.sync.food`       | Allows the player to receive the food value of the spectated target                     |
+| `spectatorplus.sync.hotbar`     | Allows the player to receive the hotbar items and selected slot of the spectated target |

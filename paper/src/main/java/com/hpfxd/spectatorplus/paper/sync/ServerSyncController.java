@@ -55,12 +55,12 @@ public class ServerSyncController implements PluginMessageListener {
         it.forEachRemaining(receiver -> receiver.sendPluginMessage(this.plugin, packet.channel().asString(), buf.toByteArray()));
     }
 
-    public Iterable<Player> getSpectators(Player target) {
-        return Iterables.filter(target.getWorld().getPlayers(), p -> target.equals(p.getSpectatorTarget()));
+    public Iterable<Player> getSpectators(Player target, String permission) {
+        return Iterables.filter(target.getWorld().getPlayers(), p -> target.equals(p.getSpectatorTarget()) && p.hasPermission(permission));
     }
 
-    public void broadcastPacketToSpectators(Player target, ClientboundSyncPacket packet) {
-        this.sendPacket(this.getSpectators(target), packet);
+    public void broadcastPacketToSpectators(Player target, String permission, ClientboundSyncPacket packet) {
+        this.sendPacket(this.getSpectators(target, permission), packet);
     }
 
     @Override

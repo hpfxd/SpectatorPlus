@@ -10,6 +10,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerItemHeldEvent;
 
+import static com.hpfxd.spectatorplus.paper.sync.handler.HotbarSyncHandler.PERMISSION;
+
 public class SelectedSlotSyncHandler implements Listener {
     private final SpectatorPlugin plugin;
 
@@ -23,7 +25,7 @@ public class SelectedSlotSyncHandler implements Listener {
     public void onStartSpectatingEntity(PlayerStartSpectatingEntityEvent event) {
         final Player spectator = event.getPlayer();
 
-        if (event.getNewSpectatorTarget() instanceof final Player target) {
+        if (event.getNewSpectatorTarget() instanceof final Player target && spectator.hasPermission(PERMISSION)) {
             this.plugin.getSyncController().sendPacket(spectator, new ClientboundSelectedSlotSyncPacket(target.getUniqueId(), target.getInventory().getHeldItemSlot()));
         }
     }
@@ -31,6 +33,6 @@ public class SelectedSlotSyncHandler implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onChangeHeldItem(PlayerItemHeldEvent event) {
         final Player target = event.getPlayer();
-        this.plugin.getSyncController().broadcastPacketToSpectators(target, new ClientboundSelectedSlotSyncPacket(target.getUniqueId(), event.getNewSlot()));
+        this.plugin.getSyncController().broadcastPacketToSpectators(target, PERMISSION, new ClientboundSelectedSlotSyncPacket(target.getUniqueId(), event.getNewSlot()));
     }
 }

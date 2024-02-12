@@ -1,12 +1,15 @@
 package com.hpfxd.spectatorplus.fabric.sync.packet;
 
 import com.hpfxd.spectatorplus.fabric.sync.ClientboundSyncPacket;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.UUID;
+
+import static com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundHotbarSyncPacket.PERMISSION;
 
 public record ClientboundSelectedSlotSyncPacket(
         UUID playerId,
@@ -31,5 +34,10 @@ public record ClientboundSelectedSlotSyncPacket(
     @Override
     public PacketType<?> getType() {
         return TYPE;
+    }
+
+    @Override
+    public boolean canSend(ServerPlayer receiver) {
+        return Permissions.check(receiver, PERMISSION, true);
     }
 }

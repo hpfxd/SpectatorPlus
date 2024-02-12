@@ -2,6 +2,7 @@ package com.hpfxd.spectatorplus.fabric.sync.packet;
 
 import com.hpfxd.spectatorplus.fabric.sync.ClientboundSyncPacket;
 import io.netty.handler.codec.EncoderException;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtAccounter;
@@ -21,6 +22,7 @@ public record ClientboundHotbarSyncPacket(
         ItemStack[] items
 ) implements ClientboundSyncPacket {
     public static final PacketType<ClientboundHotbarSyncPacket> TYPE = PacketType.create(new ResourceLocation("spectatorplus", "hotbar_sync"), ClientboundHotbarSyncPacket::new);
+    static final String PERMISSION = "spectatorplus.sync.hotbar";
 
     public static ClientboundHotbarSyncPacket initializing(ServerPlayer target) {
         final ItemStack[] items = new ItemStack[9];
@@ -101,5 +103,10 @@ public record ClientboundHotbarSyncPacket(
     @Override
     public PacketType<?> getType() {
         return TYPE;
+    }
+
+    @Override
+    public boolean canSend(ServerPlayer receiver) {
+        return Permissions.check(receiver, PERMISSION, true);
     }
 }

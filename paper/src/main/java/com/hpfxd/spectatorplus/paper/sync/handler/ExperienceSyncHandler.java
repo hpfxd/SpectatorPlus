@@ -15,6 +15,8 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import java.util.UUID;
 
 public class ExperienceSyncHandler implements Listener {
+    private static final String PERMISSION = "spectatorplus.sync.experience";
+
     private final SpectatorPlugin plugin;
     private final Object2IntMap<UUID> playerExperience = new Object2IntOpenHashMap<>();
 
@@ -30,11 +32,11 @@ public class ExperienceSyncHandler implements Listener {
         // in every tick and compare to the amount in the last tick in order to be accurate.
 
         for (final Player player : Bukkit.getOnlinePlayers()) {
-            final int current = player.getExperiencePointsNeededForNextLevel();
+            final int current = player.calculateTotalExperiencePoints();
             final int old = this.playerExperience.put(player.getUniqueId(), current);
 
             if (current != old) {
-                this.plugin.getSyncController().broadcastPacketToSpectators(player, new ClientboundExperienceSyncPacket(player.getUniqueId(), player.getExp(), current, player.getLevel()));
+                this.plugin.getSyncController().broadcastPacketToSpectators(player, PERMISSION, new ClientboundExperienceSyncPacket(player.getUniqueId(), player.getExp(), current, player.getLevel()));
             }
         }
     }
@@ -43,7 +45,7 @@ public class ExperienceSyncHandler implements Listener {
     public void onStartSpectatingEntity(PlayerStartSpectatingEntityEvent event) {
         final Player spectator = event.getPlayer();
 
-        if (event.getNewSpectatorTarget() instanceof final Player target) {
+        if (event.getNewSpectatorTarget() instanceof final Player target && spectator.hasPermission(PERMISSION)) {
             this.plugin.getSyncController().sendPacket(spectator, new ClientboundExperienceSyncPacket(target.getUniqueId(), target.getExp(), target.getExperiencePointsNeededForNextLevel(), target.getLevel()));
         }
     }

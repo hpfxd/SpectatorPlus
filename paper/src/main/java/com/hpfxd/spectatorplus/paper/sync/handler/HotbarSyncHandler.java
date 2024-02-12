@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class HotbarSyncHandler implements Listener {
+    static final String PERMISSION = "spectatorplus.sync.hotbar";
+
     private final SpectatorPlugin plugin;
     private final Map<UUID, ItemStack[]> playerHotbars = new HashMap<>();
 
@@ -52,7 +54,7 @@ public class HotbarSyncHandler implements Listener {
             }
 
             if (updated) {
-                this.plugin.getSyncController().broadcastPacketToSpectators(player, new ClientboundHotbarSyncPacket(player.getUniqueId(), sendSlots));
+                this.plugin.getSyncController().broadcastPacketToSpectators(player, PERMISSION, new ClientboundHotbarSyncPacket(player.getUniqueId(), sendSlots));
             }
         }
     }
@@ -61,7 +63,7 @@ public class HotbarSyncHandler implements Listener {
     public void onStartSpectatingEntity(PlayerStartSpectatingEntityEvent event) {
         final Player spectator = event.getPlayer();
 
-        if (event.getNewSpectatorTarget() instanceof final Player target) {
+        if (event.getNewSpectatorTarget() instanceof final Player target && spectator.hasPermission(PERMISSION)) {
             final ItemStack[] slots = new ItemStack[9];
             for (int slot = 0; slot < slots.length; slot++) {
                 ItemStack item = target.getInventory().getItem(slot);

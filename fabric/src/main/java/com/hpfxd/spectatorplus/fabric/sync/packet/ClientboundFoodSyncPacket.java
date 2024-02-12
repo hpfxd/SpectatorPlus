@@ -1,6 +1,7 @@
 package com.hpfxd.spectatorplus.fabric.sync.packet;
 
 import com.hpfxd.spectatorplus.fabric.sync.ClientboundSyncPacket;
+import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -14,6 +15,7 @@ public record ClientboundFoodSyncPacket(
         float saturation
 ) implements ClientboundSyncPacket {
     public static final PacketType<ClientboundFoodSyncPacket> TYPE = PacketType.create(new ResourceLocation("spectatorplus", "food_sync"), ClientboundFoodSyncPacket::new);
+    private static final String PERMISSION = "spectatorplus.sync.food";
 
     public static ClientboundFoodSyncPacket initializing(ServerPlayer target) {
         return new ClientboundFoodSyncPacket(target.getUUID(), target.getFoodData().getFoodLevel(), target.getFoodData().getSaturationLevel());
@@ -33,5 +35,10 @@ public record ClientboundFoodSyncPacket(
     @Override
     public PacketType<?> getType() {
         return TYPE;
+    }
+
+    @Override
+    public boolean canSend(ServerPlayer receiver) {
+        return Permissions.check(receiver, PERMISSION, true);
     }
 }

@@ -13,6 +13,7 @@ description = "A Fabric mod that improves spectator mode by showing the hotbar, 
 
 repositories {
     maven("https://maven.parchmentmc.org")
+    maven("https://oss.sonatype.org/content/repositories/snapshots")
 }
 
 loom {
@@ -37,6 +38,8 @@ dependencies {
     })
 
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}")
+
+    include(modImplementation("me.lucko:fabric-permissions-api:${property("fabric_permissions_api_version")}")!!)
 }
 
 tasks {

@@ -11,6 +11,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 
 public class FoodSyncHandler implements Listener {
+    private static final String PERMISSION = "spectatorplus.sync.food";
+
     private final SpectatorPlugin plugin;
 
     public FoodSyncHandler(SpectatorPlugin plugin) {
@@ -22,7 +24,7 @@ public class FoodSyncHandler implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onFoodLevelChange(FoodLevelChangeEvent event) {
         if (event.getEntity() instanceof final Player player) {
-            this.plugin.getSyncController().broadcastPacketToSpectators(player, new ClientboundFoodSyncPacket(player.getUniqueId(), event.getFoodLevel(), player.getSaturation()));
+            this.plugin.getSyncController().broadcastPacketToSpectators(player, PERMISSION, new ClientboundFoodSyncPacket(player.getUniqueId(), event.getFoodLevel(), player.getSaturation()));
         }
     }
 
@@ -30,7 +32,7 @@ public class FoodSyncHandler implements Listener {
     public void onStartSpectatingEntity(PlayerStartSpectatingEntityEvent event) {
         final Player spectator = event.getPlayer();
 
-        if (event.getNewSpectatorTarget() instanceof final Player target) {
+        if (event.getNewSpectatorTarget() instanceof final Player target && spectator.hasPermission(PERMISSION)) {
             this.plugin.getSyncController().sendPacket(spectator, new ClientboundFoodSyncPacket(target.getUniqueId(), target.getFoodLevel(), target.getSaturation()));
         }
     }
