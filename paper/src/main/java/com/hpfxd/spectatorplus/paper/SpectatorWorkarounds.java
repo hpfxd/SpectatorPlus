@@ -1,8 +1,9 @@
 package com.hpfxd.spectatorplus.paper;
 
-import com.google.common.collect.Lists;
+import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import com.hpfxd.spectatorplus.paper.util.ReflectionUtil;
 import io.papermc.paper.event.player.PlayerTrackEntityEvent;
+import io.papermc.paper.event.player.PlayerUntrackEntityEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -11,7 +12,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -52,45 +52,56 @@ public class SpectatorWorkarounds implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onTeleport(PlayerTeleportEvent event) {
-        final Player target = event.getPlayer();
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onUntrack(PlayerUntrackEntityEvent event) {
+        final Player spectator = event.getPlayer();
+        final Entity target = event.getEntity();
 
-        final Collection<Player> spectators = Lists.newArrayList(this.plugin.getSyncController().getSpectators(target));
+        if (!target.equals(spectator.getSpectatorTarget())) {
+            return;
+        }
 
-        if (!spectators.isEmpty()) {
-            // TODO: don't re-apply spectator if didn't teleport far away
-            // Bukkit.getScheduler().runTask()
+        // the target has been untracked by the spectator. this is usually caused by the target teleporting a long
+        // distance. so here, we need to teleport the spectator to the target, and wait for the PlayerTrackEntityEvent
+        // and re-apply the spectator target.
+        // this would be a lot simpler if Paper let us cancel the PlayerUntrackEntityEvent
 
-            for (final Player spectator : spectators) {
-                spectator.setSpectatorTarget(null);
+        this.tempTargets.put(spectator.getUniqueId(), target.getUniqueId());
+
+        if (!this.reflectionFailed) {
+            try {
+                ReflectionUtil.directTeleport(spectator, target.getLocation());
+            } catch (ReflectiveOperationException e) {
+                this.reflectionFailed = true;
             }
+        }
 
-            spectators.removeIf(spectator -> !spectator.teleport(event.getTo(), PlayerTeleportEvent.TeleportCause.SPECTATE));
-
-            Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
-                for (final Player spectator : spectators) {
-                    if (target.getTrackedBy().contains(spectator)) {
-                        spectator.setSpectatorTarget(target);
-                    } else {
-                        this.plugin.getSLF4JLogger().info("MC-107113 workaround: Queueing spectator re-apply for {}", spectator.getName());
-                        this.tempTargets.put(spectator.getUniqueId(), target.getUniqueId());
-                    }
-                }
-            }, 2);
+        if (this.reflectionFailed) {
+            spectator.teleport(target, PlayerTeleportEvent.TeleportCause.SPECTATE);
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onTrack(PlayerTrackEntityEvent event) {
         final Player spectator = event.getPlayer();
-
         final Entity target = event.getEntity();
-        if (this.tempTargets.remove(spectator.getUniqueId(), target.getUniqueId())) {
+
+        if (this.tempTargets.remove(spectator.getUniqueId(), target.getUniqueId()) && !event.isCancelled()) {
+            // we need to schedule the re-apply for a tick later, as the target is not actually tracked yet when
+            // PlayerTrackEntityEvent is called.
             Bukkit.getScheduler().runTask(this.plugin, () -> {
                 spectator.setSpectatorTarget(null);
                 spectator.setSpectatorTarget(target);
             });
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onStopSpectating(PlayerStopSpectatingEntityEvent event) {
+        final Player spectator = event.getPlayer();
+        final Entity target = event.getSpectatorTarget();
+
+        // the spectator has stopped spectating the target. so we don't want to re-apply if the target is tracked again.
+        this.tempTargets.remove(spectator.getUniqueId(), target.getUniqueId());
     }
 }
