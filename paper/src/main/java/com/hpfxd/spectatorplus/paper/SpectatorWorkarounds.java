@@ -20,7 +20,8 @@ public class SpectatorWorkarounds implements Listener {
     private final SpectatorPlugin plugin;
 
     private final Map<UUID, UUID> tempTargets = new HashMap<>();
-    private boolean reflectionFailed;
+    private boolean directTeleportFailed;
+    private boolean cameraPacketFailed;
 
     public SpectatorWorkarounds(SpectatorPlugin plugin) {
         this.plugin = plugin;
@@ -35,13 +36,13 @@ public class SpectatorWorkarounds implements Listener {
 
             if (target != null) {
                 if (spectator.getWorld().equals(target.getWorld())) {
-                    if (!this.reflectionFailed) {
+                    if (!this.directTeleportFailed) {
                         try {
                             ReflectionUtil.directTeleport(spectator, target.getLocation());
-                        } catch (ReflectiveOperationException e) {
+                        } catch (Throwable e) {
                             // todo note side effects in log message: https://github.com/NoahvdAa/SpectatorSendChunks/#side-effects
                             this.plugin.getSLF4JLogger().warn("Failed to call directTeleport, falling back to normal Bukkit teleport", e);
-                            this.reflectionFailed = true;
+                            this.directTeleportFailed = true;
                         }
                     } else {
                         spectator.setSpectatorTarget(null);
@@ -68,15 +69,15 @@ public class SpectatorWorkarounds implements Listener {
 
         this.tempTargets.put(spectator.getUniqueId(), target.getUniqueId());
 
-        if (!this.reflectionFailed) {
+        if (!this.directTeleportFailed) {
             try {
                 ReflectionUtil.directTeleport(spectator, target.getLocation());
-            } catch (ReflectiveOperationException e) {
-                this.reflectionFailed = true;
+            } catch (Throwable e) {
+                this.directTeleportFailed = true;
             }
         }
 
-        if (this.reflectionFailed) {
+        if (this.directTeleportFailed) {
             spectator.teleport(target, PlayerTeleportEvent.TeleportCause.SPECTATE);
         }
     }
@@ -90,8 +91,22 @@ public class SpectatorWorkarounds implements Listener {
             // we need to schedule the re-apply for a tick later, as the target is not actually tracked yet when
             // PlayerTrackEntityEvent is called.
             Bukkit.getScheduler().runTask(this.plugin, () -> {
-                spectator.setSpectatorTarget(null);
-                spectator.setSpectatorTarget(target);
+                if (!this.cameraPacketFailed) {
+                    try {
+                        // attempt to send ClientboundSetCameraPacket directly to the spectator as that's all that is really
+                        // needed, and we can try to skip the logic in setSpectatorTarget() which includes teleporting and
+                        // calling PlayerStartSpectatingEntityEvent.
+                        ReflectionUtil.sendCameraPacket(spectator, target);
+                    } catch (Throwable e) {
+                        this.plugin.getSLF4JLogger().warn("Failed to send ClientboundSetCameraPacket directly, falling back to Bukkit setSpectatorTarget(). This is okay and unlikely to cause issues.", e);
+                        this.cameraPacketFailed = true;
+                    }
+                }
+
+                if (this.cameraPacketFailed) {
+                    spectator.setSpectatorTarget(null);
+                    spectator.setSpectatorTarget(target);
+                }
             });
         }
     }
