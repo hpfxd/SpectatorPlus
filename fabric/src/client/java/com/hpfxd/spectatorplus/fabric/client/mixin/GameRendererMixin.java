@@ -1,11 +1,14 @@
 package com.hpfxd.spectatorplus.fabric.client.mixin;
 
 import com.google.common.base.MoreObjects;
+import com.hpfxd.spectatorplus.fabric.client.sync.ClientPositionSyncTransmitter;
 import com.hpfxd.spectatorplus.fabric.client.util.SpecUtil;
+import com.hpfxd.spectatorplus.fabric.sync.PositionEntry;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.LightTexture;
@@ -29,8 +32,8 @@ public abstract class GameRendererMixin {
     @Shadow @Final private RenderBuffers renderBuffers;
     @Shadow @Final public ItemInHandRenderer itemInHandRenderer;
 
-    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"), method = "renderItemInHand")
-    public void spectatorplus$renderItemInHand(PoseStack poseStackIn, Camera activeRenderInfoIn, float partialTicks, CallbackInfo ci) {
+    @Inject(method = "renderItemInHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/Camera;F)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"))
+    private void spectatorplus$renderItemInHand(PoseStack poseStackIn, Camera activeRenderInfoIn, float partialTicks, CallbackInfo ci) {
         if (this.minecraft.player != null && this.minecraft.options.getCameraType().isFirstPerson() && !this.minecraft.options.hideGui) {
             final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
             if (spectated != null) {
@@ -96,6 +99,18 @@ public abstract class GameRendererMixin {
             return ItemInHandRendererAccessor.invokeIsChargedCrossbow(mainHandItem)
                     ? ItemInHandRenderer.HandRenderSelection.RENDER_MAIN_HAND_ONLY
                     : ItemInHandRenderer.HandRenderSelection.RENDER_BOTH_HANDS;
+        }
+    }
+
+    @Inject(method = "render(FJZ)V", at = @At("HEAD"))
+    private void spectatorplus$recordClientPosition(float partialTicks, long nanoTime, boolean renderLevel, CallbackInfo ci) {
+        if (ClientPositionSyncTransmitter.transmitPositions && this.minecraft.player != null) {
+            final LocalPlayer player = this.minecraft.player;
+            if (((LocalPlayerAccessor) player).isControlledCamera()) {
+                ClientPositionSyncTransmitter.pushPosition(new PositionEntry(partialTicks, player.getXRot(), player.getYRot()));
+            } else {
+                ClientPositionSyncTransmitter.clearPositions();
+            }
         }
     }
 }

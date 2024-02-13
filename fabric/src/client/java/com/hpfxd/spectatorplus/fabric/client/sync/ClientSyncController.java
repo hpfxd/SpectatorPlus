@@ -1,13 +1,16 @@
 package com.hpfxd.spectatorplus.fabric.client.sync;
 
+import com.hpfxd.spectatorplus.fabric.client.mixin.MinecraftAccessor;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundExperienceSyncPacket;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundFoodSyncPacket;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundHotbarSyncPacket;
+import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundPositionsSyncPacket;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundSelectedSlotSyncPacket;
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.ItemStack;
@@ -18,10 +21,13 @@ public class ClientSyncController {
     public static ClientSyncData syncData;
 
     public static void init() {
+        ClientPositionSyncTransmitter.init();
+
         ClientPlayNetworking.registerGlobalReceiver(ClientboundExperienceSyncPacket.TYPE, ClientSyncController::handle);
         ClientPlayNetworking.registerGlobalReceiver(ClientboundFoodSyncPacket.TYPE, ClientSyncController::handle);
         ClientPlayNetworking.registerGlobalReceiver(ClientboundHotbarSyncPacket.TYPE, ClientSyncController::handle);
         ClientPlayNetworking.registerGlobalReceiver(ClientboundSelectedSlotSyncPacket.TYPE, ClientSyncController::handle);
+        ClientPlayNetworking.registerGlobalReceiver(ClientboundPositionsSyncPacket.TYPE, ClientSyncController::handle);
 
         ClientLoginConnectionEvents.INIT.register((handler, client) -> syncData = null);
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> syncData = null);
@@ -62,6 +68,12 @@ public class ClientSyncController {
         setSyncData(packet.playerId());
 
         syncData.selectedHotbarSlot = packet.selectedSlot();
+    }
+
+    private static void handle(ClientboundPositionsSyncPacket packet, LocalPlayer player, PacketSender sender) {
+        setSyncData(packet.playerId());
+
+        syncData.positionRecord = new PositionRecord(((MinecraftAccessor) Minecraft.getInstance()).getClientTickCount(), packet.entries());
     }
 
     private static void setSyncData(UUID playerId) {

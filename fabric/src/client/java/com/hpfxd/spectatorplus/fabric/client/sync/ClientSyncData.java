@@ -11,6 +11,7 @@ public class ClientSyncData {
     public final NonNullList<ItemStack> hotbarItems = NonNullList.withSize(9, ItemStack.EMPTY);
     public int selectedHotbarSlot = -1;
     public FoodData foodData;
+    public PositionRecord positionRecord;
 
     public float experienceProgress;
     public int experienceNeededForNextLevel;

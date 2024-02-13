@@ -3,10 +3,14 @@
   "package": "com.hpfxd.spectatorplus.fabric.client.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "CameraMixin",
     "GameRendererMixin",
     "GuiMixin",
     "ItemInHandRendererAccessor",
     "ItemInHandRendererMixin",
+    "LocalPlayerAccessor",
+    "LocalPlayerMixin",
+    "MinecraftAccessor",
     "MinecraftMixin"
   ],
   "injectors": {
