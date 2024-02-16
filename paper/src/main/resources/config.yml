@@ -1,0 +1,25 @@
+# SpectatorPlus configuration
+# https://github.com/hpfxd/SpectatorPlus
+
+# This plugin contains some workarounds that help mitigate some annoying bugs with spectator mode.
+# Generally, these workarounds will even apply to players that don't have the client mod installed.
+workarounds:
+  # Automatically teleports spectators' bodies to their target's position every second.
+  # This is a workaround to mitigate https://bugs.mojang.com/browse/MC-148993
+  auto-update-position: true
+
+  # Automatically teleports spectators to their target's position and re-applies their camera view
+  # when their target becomes untracked (disappears from spectator's view). This usually happens
+  # when spectators suddenly teleport far away out of view distance.
+  auto-teleport-on-untrack: true
+
+  # Some of these workarounds contain code that hooks into server internals, bypassing some limitations
+  # of the Bukkit API. The downside to this is that it may not work on every server version, may fail.
+  # If this option is enabled, some workarounds will fall-back to using the Bukkit API to work, but
+  # this may cause some unintended side-effects, including:
+  # - When spectating a mob that has some kind of shader (creeper, enderman or spider), it may also be
+  #   active when in third person view.
+  # - The PlayerStartSpectatingEntityEvent or PlayerStopSpectatingEntityEvent will be triggered quite often,
+  #   so plugins doing intensive calculations in those events may cause lag.
+  # - The workaround will not work properly if another plugin cancels one of the events mentioned above.
+  allow-fallback: true

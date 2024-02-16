@@ -26,7 +26,10 @@ public class SpectatorWorkarounds implements Listener {
     public SpectatorWorkarounds(SpectatorPlugin plugin) {
         this.plugin = plugin;
 
-        Bukkit.getScheduler().runTaskTimer(plugin, this::updateSpectatorPositions, 20, 20);
+        if (plugin.getServerConfig().workaroundTeleportTicker) {
+            Bukkit.getScheduler().runTaskTimer(plugin, this::updateSpectatorPositions, 20, 20);
+        }
+
         Bukkit.getPluginManager().registerEvents(this, plugin);
     }
 
@@ -40,11 +43,15 @@ public class SpectatorWorkarounds implements Listener {
                         try {
                             ReflectionUtil.directTeleport(spectator, target.getLocation());
                         } catch (Throwable e) {
-                            // todo note side effects in log message: https://github.com/NoahvdAa/SpectatorSendChunks/#side-effects
-                            this.plugin.getSLF4JLogger().warn("Failed to call directTeleport, falling back to normal Bukkit teleport", e);
                             this.directTeleportFailed = true;
+                            this.plugin.getSLF4JLogger().warn("auto-update-position workaround: Failed to call directTeleport, will not try again", e);
+                            if (this.plugin.getServerConfig().workaroundsAllowFallback) {
+                                this.plugin.getSLF4JLogger().warn("\"allow-fallback\" is enabled in the plugin configuration. This has a few drawbacks, it is recommended to view the notes in the config about this option.");
+                            }
                         }
-                    } else {
+                    }
+
+                    if (this.directTeleportFailed && this.plugin.getServerConfig().workaroundsAllowFallback) {
                         spectator.setSpectatorTarget(null);
                         spectator.setSpectatorTarget(target);
                     }
@@ -55,6 +62,10 @@ public class SpectatorWorkarounds implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onUntrack(PlayerUntrackEntityEvent event) {
+        if (!this.plugin.getServerConfig().workaroundTeleportOnUntrack) {
+            return;
+        }
+
         final Player spectator = event.getPlayer();
         final Entity target = event.getEntity();
 
@@ -77,13 +88,17 @@ public class SpectatorWorkarounds implements Listener {
             }
         }
 
-        if (this.directTeleportFailed) {
+        if (this.directTeleportFailed && this.plugin.getServerConfig().workaroundsAllowFallback) {
             spectator.teleport(target, PlayerTeleportEvent.TeleportCause.SPECTATE);
         }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onTrack(PlayerTrackEntityEvent event) {
+        if (!this.plugin.getServerConfig().workaroundTeleportOnUntrack) {
+            return;
+        }
+
         final Player spectator = event.getPlayer();
         final Entity target = event.getEntity();
 
@@ -98,8 +113,11 @@ public class SpectatorWorkarounds implements Listener {
                         // calling PlayerStartSpectatingEntityEvent.
                         ReflectionUtil.sendCameraPacket(spectator, target);
                     } catch (Throwable e) {
-                        this.plugin.getSLF4JLogger().warn("Failed to send ClientboundSetCameraPacket directly, falling back to Bukkit setSpectatorTarget(). This is okay and unlikely to cause issues.", e);
                         this.cameraPacketFailed = true;
+                        this.plugin.getSLF4JLogger().warn("auto-teleport-on-untrack workaround: Failed to send ClientboundSetCameraPacket directly", e);
+                        if (this.plugin.getServerConfig().workaroundsAllowFallback) {
+                            this.plugin.getSLF4JLogger().warn("\"allow-fallback\" is enabled in the plugin configuration, falling back to Bukkit setSpectatorTarget(). This is unlikely to cause issues.");
+                        }
                     }
                 }
 
@@ -113,6 +131,10 @@ public class SpectatorWorkarounds implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onStopSpectating(PlayerStopSpectatingEntityEvent event) {
+        if (!this.plugin.getServerConfig().workaroundTeleportOnUntrack) {
+            return;
+        }
+
         final Player spectator = event.getPlayer();
         final Entity target = event.getSpectatorTarget();
 
