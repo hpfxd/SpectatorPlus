@@ -27,6 +27,9 @@
     ],
     "client": [
       "com.hpfxd.spectatorplus.fabric.client.SpectatorClientMod"
+    ],
+    "modmenu": [
+      "com.hpfxd.spectatorplus.fabric.client.config.ModMenuIntegration"
     ]
   },
   "custom": {
@@ -53,5 +56,9 @@
     "java": ">=17",
     "fabric-api": "*",
     "fabric-permissions-api-v0": "*"
+  },
+  "suggests": {
+    "cloth-config": "^13.0.0",
+    "modmenu": "^9.0.0"
   }
 }

@@ -14,6 +14,8 @@ description = "A Fabric mod that improves spectator mode by showing the hotbar, 
 repositories {
     maven("https://maven.parchmentmc.org")
     maven("https://oss.sonatype.org/content/repositories/snapshots")
+    maven("https://maven.shedaniel.me/")
+    maven("https://maven.terraformersmc.com/releases/")
 }
 
 loom {
@@ -40,6 +42,12 @@ dependencies {
     modImplementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_version")}")
 
     include(modImplementation("me.lucko:fabric-permissions-api:${property("fabric_permissions_api_version")}")!!)
+
+    modImplementation("me.shedaniel.cloth:cloth-config-fabric:${property("cloth_config_version")}") {
+        exclude("net.fabricmc.fabric-api")
+    }
+
+    modImplementation("com.terraformersmc:modmenu:${property("modmenu_version")}")
 }
 
 tasks {

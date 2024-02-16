@@ -1,0 +1,20 @@
+{
+  "gui.spectatorplus.config.title": "SpectatorPlus",
+  "gui.spectatorplus.config.client.title": "Client",
+  "gui.spectatorplus.config.server.title": "LAN",
+  "gui.spectatorplus.config.server.description": "These settings will only affect the integrated server (singleplayer).",
+
+  "gui.spectatorplus.config.client.renderStatus.name": "Show status",
+  "gui.spectatorplus.config.client.renderStatus.tooltip": "Renders the status icons (e.g. health, food,\nexperience) when spectating a player.",
+  "gui.spectatorplus.config.client.renderStatusIfNoHotbar.name": "Show status when hotbar is hidden",
+  "gui.spectatorplus.config.client.renderStatusIfNoHotbar.tooltip": "Renders status indicators even when the hotbar\nis hidden due to the server not having\nthe mod installed.",
+  "gui.spectatorplus.config.client.renderHotbar.name": "Show hotbar",
+  "gui.spectatorplus.config.client.renderHotbar.tooltip": "Renders the hotbar of the spectated player.\nRequires the mod to be installed server-side.",
+  "gui.spectatorplus.config.client.renderArms.name": "Show arms & held item",
+  "gui.spectatorplus.config.client.renderArms.tooltip": "Renders the arms and held item of the spectated player.",
+
+  "gui.spectatorplus.config.server.allowTransferBetweenLevels.name": "Transfer between worlds",
+  "gui.spectatorplus.config.server.allowTransferBetweenLevels.tooltip": "Whether player's spectators transfer with them when\ntravelling between worlds.",
+  "gui.spectatorplus.config.server.autoUpdatePosition.name": "Auto-teleport spectators",
+  "gui.spectatorplus.config.server.autoUpdatePosition.tooltip": "Automatically teleports spectators' bodies to their target's position\nevery second. This is a workaround to mitigate %s."
+}
