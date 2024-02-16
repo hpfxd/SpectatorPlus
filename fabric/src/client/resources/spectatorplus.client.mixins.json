@@ -7,6 +7,9 @@
     "GuiMixin",
     "ItemInHandRendererAccessor",
     "ItemInHandRendererMixin",
+    "LevelRendererAccessor",
+    "LevelRendererMixin",
+    "LivingEntityMixin",
     "MinecraftMixin"
   ],
   "injectors": {
