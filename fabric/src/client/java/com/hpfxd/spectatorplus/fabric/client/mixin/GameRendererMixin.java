@@ -1,6 +1,7 @@
 package com.hpfxd.spectatorplus.fabric.client.mixin;
 
 import com.google.common.base.MoreObjects;
+import com.hpfxd.spectatorplus.fabric.client.SpectatorClientMod;
 import com.hpfxd.spectatorplus.fabric.client.util.SpecUtil;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -31,9 +32,9 @@ public abstract class GameRendererMixin {
     @Shadow @Final private RenderBuffers renderBuffers;
     @Shadow @Final public ItemInHandRenderer itemInHandRenderer;
 
-    @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"), method = "renderItemInHand")
+    @Inject(method = "renderItemInHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/Camera;F)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"))
     public void spectatorplus$renderItemInHand(PoseStack poseStackIn, Camera activeRenderInfoIn, float partialTicks, CallbackInfo ci) {
-        if (this.minecraft.player != null && this.minecraft.options.getCameraType().isFirstPerson() && !this.minecraft.options.hideGui) {
+        if (SpectatorClientMod.config.renderArms && this.minecraft.player != null && this.minecraft.options.getCameraType().isFirstPerson() && !this.minecraft.options.hideGui) {
             final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
             if (spectated != null && !spectated.isSpectator()) {
                 this.lightTexture.turnOnLightLayer();

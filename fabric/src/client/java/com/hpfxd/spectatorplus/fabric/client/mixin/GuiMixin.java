@@ -1,5 +1,6 @@
 package com.hpfxd.spectatorplus.fabric.client.mixin;
 
+import com.hpfxd.spectatorplus.fabric.client.SpectatorClientMod;
 import com.hpfxd.spectatorplus.fabric.client.sync.ClientSyncController;
 import com.hpfxd.spectatorplus.fabric.client.util.SpecUtil;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
@@ -23,6 +24,7 @@ import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -82,7 +84,7 @@ public abstract class GuiMixin {
             spectatedRef.set(spectated);
 
             if (spectated != null) {
-                if (ClientSyncController.syncData != null && ClientSyncController.syncData.selectedHotbarSlot != -1 && !spectated.isSpectator()) {
+                if (ClientSyncController.syncData != null && ClientSyncController.syncData.selectedHotbarSlot != -1 && !spectated.isSpectator() && SpectatorClientMod.config.renderHotbar) {
                     this.renderHotbar(partialTick, guiGraphics);
                 }
 
@@ -98,17 +100,26 @@ public abstract class GuiMixin {
         }
 
         final AbstractClientPlayer spectated = spectatedRef.get();
-        return spectated != null && !spectated.isCreative() && !spectated.isSpectator();
+        return spectated != null && !spectated.isCreative() && !spectated.isSpectator() && this.spectatorplus$isStatusEnabled();
     }
 
     @Redirect(method = "render(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;hasExperience()Z"))
     private boolean spectatorplus$renderExperience(MultiPlayerGameMode instance, @Share("spectated") LocalRef<AbstractClientPlayer> spectatedRef) {
         final AbstractClientPlayer spectated = spectatedRef.get();
         if (spectated != null) {
-            return !spectated.isCreative() && !spectated.isSpectator() && ClientSyncController.syncData != null && ClientSyncController.syncData.experienceLevel != -1;
+            return !spectated.isCreative() && !spectated.isSpectator() && ClientSyncController.syncData != null && ClientSyncController.syncData.experienceLevel != -1 && this.spectatorplus$isStatusEnabled();
         }
 
         return instance.hasExperience();
+    }
+
+    @Unique
+    private boolean spectatorplus$isStatusEnabled() {
+        if (!SpectatorClientMod.config.renderStatus) {
+            return false;
+        }
+
+        return SpectatorClientMod.config.renderStatusIfNoHotbar || (ClientSyncController.syncData != null && ClientSyncController.syncData.selectedHotbarSlot != -1);
     }
 
     @Inject(method = "canRenderCrosshairForSpectator(Lnet/minecraft/world/phys/HitResult;)Z", at = @At(value = "HEAD"), cancellable = true)

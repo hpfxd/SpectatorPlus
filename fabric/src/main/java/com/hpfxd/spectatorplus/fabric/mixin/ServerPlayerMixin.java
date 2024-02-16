@@ -1,5 +1,6 @@
 package com.hpfxd.spectatorplus.fabric.mixin;
 
+import com.hpfxd.spectatorplus.fabric.SpectatorMod;
 import com.hpfxd.spectatorplus.fabric.sync.ServerSyncController;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundExperienceSyncPacket;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundFoodSyncPacket;
@@ -61,13 +62,13 @@ public abstract class ServerPlayerMixin extends Player {
         // Adapted fix from https://github.com/PaperMC/Paper/pull/9349
 
         if (entity.level() == this.level()) {
-            if (this.tickCount % 20 == 0) {
+            if (SpectatorMod.config.autoUpdatePosition && this.tickCount % 20 == 0) {
                 // We send the player an additional teleport packet here to indicate that the position of itself has been moved.
                 // Without this packet, if a player travels a too far distance, chunks will start to become invisible for our spectator.
 
                 this.connection.teleport(entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
             }
-        } else {
+        } else if (SpectatorMod.config.allowTransferBetweenLevels) {
             // Teleport ourselves to our camera
             this.teleportTo((ServerLevel) entity.level(), entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
 
