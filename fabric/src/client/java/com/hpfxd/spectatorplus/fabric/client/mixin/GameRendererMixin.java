@@ -2,6 +2,7 @@ package com.hpfxd.spectatorplus.fabric.client.mixin;
 
 import com.google.common.base.MoreObjects;
 import com.hpfxd.spectatorplus.fabric.client.util.SpecUtil;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -12,6 +13,7 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderBuffers;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.spongepowered.asm.mixin.Final;
@@ -97,5 +99,25 @@ public abstract class GameRendererMixin {
                     ? ItemInHandRenderer.HandRenderSelection.RENDER_MAIN_HAND_ONLY
                     : ItemInHandRenderer.HandRenderSelection.RENDER_BOTH_HANDS;
         }
+    }
+
+    @ModifyExpressionValue(method = "pick(F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;getPickRange()F"))
+    private float spectatorplus$modifyPickRange(float original) {
+        final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
+        if (spectated != null) {
+            return Player.getPickRange(spectated.isCreative());
+        }
+
+        return original;
+    }
+
+    @ModifyExpressionValue(method = "pick(F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;hasFarPickRange()Z"))
+    private boolean spectatorplus$modifyHasFarPickRange(boolean original) {
+        final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
+        if (spectated != null) {
+            return spectated.isCreative();
+        }
+
+        return original;
     }
 }

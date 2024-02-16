@@ -114,8 +114,8 @@ public abstract class GuiMixin {
     @Inject(method = "canRenderCrosshairForSpectator(Lnet/minecraft/world/phys/HitResult;)Z", at = @At(value = "HEAD"), cancellable = true)
     private void spectatorplus$renderCrosshair(HitResult rayTrace, CallbackInfoReturnable<Boolean> cir) {
         final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
-        if (spectated != null && !spectated.isSpectator()) {
-            cir.setReturnValue(true);
+        if (spectated != null) {
+            cir.setReturnValue(!spectated.isSpectator());
         }
     }
 
