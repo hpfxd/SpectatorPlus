@@ -18,3 +18,6 @@ permissions:
   spectatorplus.sync.hotbar:
     description: "Allows the player to receive the hotbar items and selected slot of the spectated target"
     default: true
+  spectatorplus.sync.container:
+    description: "Allows the player to receive the open container/inventory of the spectated target"
+    default: true

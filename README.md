@@ -31,3 +31,4 @@ SpectatorPlus uses [fabric-permissions-api](https://github.com/lucko/fabric-perm
 | `spectatorplus.sync.experience` | Allows the player to receive the experience value of the spectated target               |
 | `spectatorplus.sync.food`       | Allows the player to receive the food value of the spectated target                     |
 | `spectatorplus.sync.hotbar`     | Allows the player to receive the hotbar items and selected slot of the spectated target |
+| `spectatorplus.sync.container`  | Allows the player to receive the open container/menu of the spectated target            |
