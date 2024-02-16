@@ -35,7 +35,7 @@ public abstract class GameRendererMixin {
     public void spectatorplus$renderItemInHand(PoseStack poseStackIn, Camera activeRenderInfoIn, float partialTicks, CallbackInfo ci) {
         if (this.minecraft.player != null && this.minecraft.options.getCameraType().isFirstPerson() && !this.minecraft.options.hideGui) {
             final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
-            if (spectated != null) {
+            if (spectated != null && !spectated.isSpectator()) {
                 this.lightTexture.turnOnLightLayer();
 
                 float attackAnim = spectated.getAttackAnim(partialTicks);
