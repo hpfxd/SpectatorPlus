@@ -3,6 +3,7 @@ package com.hpfxd.spectatorplus.paper.sync.handler;
 import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import com.hpfxd.spectatorplus.paper.SpectatorPlugin;
+import org.apache.commons.lang3.ArrayUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -16,6 +17,8 @@ import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -35,7 +38,7 @@ public class ContainerSyncHandler implements Listener {
     private static final String PERMISSION = "spectatorplus.sync.container";
 
     private final SpectatorPlugin plugin;
-    private final Map<UUID, SyncedInventory> inventories = new HashMap<>();
+    private final Map<UUID, SyncEntry> entries = new HashMap<>();
 
     private boolean opening;
     private boolean closing;
@@ -61,12 +64,12 @@ public class ContainerSyncHandler implements Listener {
                 if (currentInventoryType == InventoryType.CRAFTING || currentInventoryType == InventoryType.CREATIVE) {
                     // if the player currently has an inventory screen already open, we want to skip opening this new inventory for them.
                     // UNLESS, their current inventory is already a synced one, which is okay to replace:
-                    if (!this.inventories.containsKey(spectator.getUniqueId())) {
+                    if (!this.entries.containsKey(spectator.getUniqueId())) {
                         continue;
                     }
                 }
 
-                this.handleNewInventory(spectator, event.getView());
+                this.handleNewInventory(spectator, event.getView(), false);
             }
         } finally {
             this.opening = false;
@@ -83,13 +86,13 @@ public class ContainerSyncHandler implements Listener {
         try {
             this.closing = true;
 
-            for (final Iterator<SyncedInventory> it = this.inventories.values().iterator(); it.hasNext(); ) {
-                final SyncedInventory entry = it.next();
+            for (final Iterator<SyncEntry> it = this.entries.values().iterator(); it.hasNext(); ) {
+                final SyncEntry entry = it.next();
 
                 if (entry.spectator.equals(event.getPlayer())) {
                     // event is being called for a spectator closing a synced inventory themself. just remove the entry
                     it.remove();
-                } else if (entry.targetView.equals(event.getView())) {
+                } else if (entry instanceof SyncedContainer syncedContainer && syncedContainer.targetView.equals(event.getView())) {
                     // event is being called for a target closing an inventory, and this entry is for a spectator viewing it.
                     // close the inventory for the spectator, and remove the entry
                     entry.close();
@@ -105,13 +108,13 @@ public class ContainerSyncHandler implements Listener {
     public void onStartSpectating(PlayerStartSpectatingEntityEvent event) {
         final Player spectator = event.getPlayer();
 
-        final SyncedInventory entry = this.inventories.remove(spectator.getUniqueId());
+        final SyncEntry entry = this.entries.remove(spectator.getUniqueId());
         if (entry != null) {
             entry.close();
         }
 
         if (event.getNewSpectatorTarget() instanceof final Player target && spectator.hasPermission(PERMISSION)) {
-            this.handleNewInventory(spectator, target.getOpenInventory());
+            this.handleNewInventory(spectator, target.getOpenInventory(), false);
         }
     }
 
@@ -119,7 +122,7 @@ public class ContainerSyncHandler implements Listener {
     public void onStopSpectating(PlayerStopSpectatingEntityEvent event) {
         final Player spectator = event.getPlayer();
 
-        final SyncedInventory entry = this.inventories.remove(spectator.getUniqueId());
+        final SyncEntry entry = this.entries.remove(spectator.getUniqueId());
         if (entry != null) {
             entry.close();
         }
@@ -127,28 +130,30 @@ public class ContainerSyncHandler implements Listener {
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onClick(InventoryClickEvent event) {
-        if (this.inventories.get(event.getWhoClicked().getUniqueId()) != null) {
+        if (this.entries.get(event.getWhoClicked().getUniqueId()) != null) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onClick(InventoryDragEvent event) {
-        if (this.inventories.get(event.getWhoClicked().getUniqueId()) != null) {
+        if (this.entries.get(event.getWhoClicked().getUniqueId()) != null) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        this.inventories.remove(event.getPlayer().getUniqueId());
+        this.entries.remove(event.getPlayer().getUniqueId());
     }
 
-    private void handleNewInventory(Player spectator, InventoryView targetView) {
+    private void handleNewInventory(Player spectator, InventoryView targetView, boolean requestedOpen) {
         // TODO inventories: player, creative, enchanting table
         // (need to make sure player/creative is actually open, since this is called on spectate)
 
         switch (targetView.getType()) {
+            case PLAYER:
+                this.handleNewPlayerInventory(spectator, targetView.getPlayer().getInventory(), requestedOpen);
             case CHEST:
             case DISPENSER:
             case DROPPER:
@@ -161,7 +166,7 @@ public class ContainerSyncHandler implements Listener {
             case BLAST_FURNACE:
             case LECTERN:
             case SMOKER:
-                this.handleNewDirectInventory(spectator, targetView);
+                this.handleNewDirectInventory(spectator, targetView, requestedOpen);
                 break;
             case WORKBENCH:
             case LOOM:
@@ -170,19 +175,19 @@ public class ContainerSyncHandler implements Listener {
             case SMITHING:
             case ANVIL:
             case ENDER_CHEST:
-                this.handleNewReplicaInventory(spectator, targetView);
+                this.handleNewReplicaInventory(spectator, targetView, requestedOpen);
                 break;
         }
     }
 
-    private void handleNewDirectInventory(Player spectator, InventoryView targetView) {
-        final InventoryView view = spectator.openInventory(targetView.getTopInventory());
-        final SyncedInventory entry = new SyncedInventory(spectator, view, targetView);
+    private void handleNewDirectInventory(Player spectator, InventoryView targetView, boolean requestedOpen) {
+        final InventoryView spectatorView = spectator.openInventory(targetView.getTopInventory());
+        final SyncEntry entry = new SyncedContainer(spectator, spectatorView, targetView, requestedOpen);
 
-        this.inventories.put(spectator.getUniqueId(), entry);
+        this.entries.put(spectator.getUniqueId(), entry);
     }
 
-    private void handleNewReplicaInventory(Player spectator, InventoryView targetView) {
+    private void handleNewReplicaInventory(Player spectator, InventoryView targetView, boolean requestedOpen) {
         final Inventory inventory;
         if (targetView.getType() == InventoryType.CHEST || targetView.getType() == InventoryType.ENDER_CHEST) {
             inventory = Bukkit.createInventory(spectator, targetView.getTopInventory().getSize(), targetView.title());
@@ -190,39 +195,88 @@ public class ContainerSyncHandler implements Listener {
             inventory = Bukkit.createInventory(spectator, targetView.getType(), targetView.title());
         }
 
-        final InventoryView view = spectator.openInventory(inventory);
-        final SyncedInventory entry = new ReplicaSyncedInventory(spectator, view, targetView);
+        final InventoryView spectatorView = spectator.openInventory(inventory);
+        final SyncEntry entry = new ReplicaSyncedInventory(spectator, spectatorView, targetView, requestedOpen);
 
-        this.inventories.put(spectator.getUniqueId(), entry);
+        this.entries.put(spectator.getUniqueId(), entry);
+    }
+
+    private void handleNewPlayerInventory(Player spectator, PlayerInventory targetInventory, boolean requestedOpen) {
+        final InventoryView spectatorView = spectator.openInventory(targetInventory);
+        final SyncEntry entry = new SyncedPlayerInventory(spectator, spectatorView, targetInventory, requestedOpen);
+
+        this.entries.put(spectator.getUniqueId(), entry);
+    }
+
+    private void handleNewPlayerCraftingInventory(Player spectator, InventoryView targetView, boolean requestedOpen) {
+        final Inventory spectatorInventory = Bukkit.createInventory(spectator, targetView.getTopInventory().getSize() + targetView.getBottomInventory().getSize());
+        final InventoryView spectatorView = spectator.openInventory(spectatorInventory);
+
+        final SyncEntry entry = new SyncedPlayerCraftingInventory(spectator, spectatorView, targetView, requestedOpen);
+
+        this.entries.put(spectator.getUniqueId(), entry);
     }
 
     private void tick() {
-        for (final SyncedInventory entry : this.inventories.values()) {
-            if (entry instanceof ReplicaSyncedInventory) {
-                entry.spectatorView.getTopInventory().setContents(entry.targetView.getTopInventory().getContents());
+        for (final SyncEntry entry : this.entries.values()) {
+            if (entry instanceof ReplicaSyncedInventory e) {
+                e.update();
             }
         }
     }
 
-    private static class SyncedInventory {
+    private abstract static class SyncEntry {
         public final Player spectator;
         public final InventoryView spectatorView;
-        public final InventoryView targetView;
+        public final Inventory targetInventory;
+        public final boolean requestedOpen;
 
-        private SyncedInventory(Player spectator, InventoryView spectatorView, InventoryView targetView) {
+        private SyncEntry(Player spectator, InventoryView spectatorView, Inventory targetInventory, boolean requestedOpen) {
             this.spectator = spectator;
             this.spectatorView = spectatorView;
-            this.targetView = targetView;
+            this.targetInventory = targetInventory;
+            this.requestedOpen = requestedOpen;
         }
 
-        private void close() {
+        public void close() {
             this.spectator.closeInventory();
         }
     }
 
-    private static class ReplicaSyncedInventory extends SyncedInventory {
-        private ReplicaSyncedInventory(Player spectator, InventoryView spectatorView, InventoryView targetView) {
-            super(spectator, spectatorView, targetView);
+    private static class SyncedPlayerInventory extends SyncEntry {
+        private SyncedPlayerInventory(Player spectator, InventoryView spectatorView, PlayerInventory inventory, boolean requestedOpen) {
+            super(spectator, spectatorView, inventory, requestedOpen);
+        }
+    }
+
+    private static class SyncedContainer extends SyncEntry {
+        public final InventoryView targetView;
+
+        private SyncedContainer(Player spectator, InventoryView spectatorView, InventoryView targetView, boolean requestedOpen) {
+            super(spectator, spectatorView, targetView.getTopInventory(), requestedOpen);
+            this.targetView = targetView;
+        }
+    }
+
+    private static class ReplicaSyncedInventory extends SyncedContainer {
+        private ReplicaSyncedInventory(Player spectator, InventoryView spectatorView, InventoryView targetView, boolean requestedOpen) {
+            super(spectator, spectatorView, targetView, requestedOpen);
+        }
+
+        public void update() {
+            this.spectatorView.getTopInventory().setContents(this.targetView.getTopInventory().getContents());
+        }
+    }
+
+    private static class SyncedPlayerCraftingInventory extends ReplicaSyncedInventory {
+        private SyncedPlayerCraftingInventory(Player spectator, InventoryView spectatorView, InventoryView targetView, boolean requestedOpen) {
+            super(spectator, spectatorView, targetView, requestedOpen);
+        }
+
+        @Override
+        public void update() {
+            final ItemStack[] contents = ArrayUtils.addAll(this.targetView.getTopInventory().getContents(), this.targetView.getBottomInventory().getContents());
+            this.spectatorView.getTopInventory().setContents(contents);
         }
     }
 }
