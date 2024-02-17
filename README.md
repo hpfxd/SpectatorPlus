@@ -26,9 +26,10 @@ player they are spectating. **By default, all players have access to all informa
 would like to change this, you can use a permissions plugin/mod such as [LuckPerms](https://luckperms.net/). On Fabric,
 SpectatorPlus uses [fabric-permissions-api](https://github.com/lucko/fabric-permissions-api/) to check permissions.
 
-| Permission                      | Description                                                                             |
-|---------------------------------|-----------------------------------------------------------------------------------------|
-| `spectatorplus.sync.experience` | Allows the player to receive the experience value of the spectated target               |
-| `spectatorplus.sync.food`       | Allows the player to receive the food value of the spectated target                     |
-| `spectatorplus.sync.hotbar`     | Allows the player to receive the hotbar items and selected slot of the spectated target |
-| `spectatorplus.sync.container`  | Allows the player to receive the open container/menu of the spectated target            |
+| Permission                      | Description                                                                                   |
+|---------------------------------|-----------------------------------------------------------------------------------------------|
+| `spectatorplus.sync.experience` | Allows the player to receive the experience value of the spectated target                     |
+| `spectatorplus.sync.food`       | Allows the player to receive the food value of the spectated target                           |
+| `spectatorplus.sync.hotbar`     | Allows the player to receive the hotbar items and selected slot of the spectated target       |
+| `spectatorplus.sync.inventory`  | Allows the player to receive the full inventory of the spectated target when a screen is open |
+| `spectatorplus.sync.screen`     | Allows the player to receive the open screen of the spectated target (e.g. a chest)           |

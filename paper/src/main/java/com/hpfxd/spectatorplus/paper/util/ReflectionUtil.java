@@ -1,15 +1,20 @@
 package com.hpfxd.spectatorplus.paper.util;
 
 import com.hpfxd.spectatorplus.paper.SpectatorPlugin;
+import it.unimi.dsi.fastutil.objects.Object2IntArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryView;
 import org.bukkit.plugin.java.JavaPlugin;
 import xyz.jpenilla.reflectionremapper.ReflectionRemapper;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Set;
 
 public class ReflectionUtil {
@@ -20,6 +25,12 @@ public class ReflectionUtil {
     private static Method ServerGamePacketListenerImpl$internalTeleport;
     private static Method ServerCommonPacketListenerImpl$send;
     private static Constructor<?> ClientboundSetCameraPacket$init;
+
+    private static Method CraftInventoryView$getHandle;
+    private static Field CraftContainer$delegate;
+    private static Field AbstractContainerMenu$containerId;
+    private static Field AbstractContainerMenu$dataSlots;
+    private static Method DataSlot$get;
 
     static {
         try {
@@ -32,6 +43,14 @@ public class ReflectionUtil {
     }
 
     private ReflectionUtil() {
+    }
+
+    /*
+     * General
+     */
+
+    private static String getCraftBukkitPackagePrefix() {
+        return Bukkit.getServer().getClass().getPackageName();
     }
 
     private static Object getHandle(Entity entity) throws ReflectiveOperationException {
@@ -48,6 +67,10 @@ public class ReflectionUtil {
         }
         return ServerPlayer$connection.get(serverPlayer);
     }
+
+    /*
+     * Packets
+     */
 
     private static void internalTeleport(Object connection, Location location) throws ReflectiveOperationException {
         if (ServerGamePacketListenerImpl$internalTeleport == null) {
@@ -93,5 +116,90 @@ public class ReflectionUtil {
         final Object cameraPacket = constructCameraPacket(minecraftEntity);
 
         sendPacket(connection, cameraPacket);
+    }
+
+    /*
+     * Containers
+     */
+
+    private static Object getContainerMenu(InventoryView view) throws ReflectiveOperationException {
+        if (CraftInventoryView$getHandle == null) {
+            final Class<?> craftInventoryViewClass = Class.forName(getCraftBukkitPackagePrefix() + ".inventory.CraftInventoryView");
+            CraftInventoryView$getHandle = craftInventoryViewClass.getMethod("getHandle");
+        }
+
+        if (CraftContainer$delegate == null) {
+            final Class<?> craftContainerClass = Class.forName(getCraftBukkitPackagePrefix() + ".inventory.CraftContainer");
+            CraftContainer$delegate = craftContainerClass.getDeclaredField("delegate");
+            CraftContainer$delegate.setAccessible(true);
+        }
+
+        try {
+            return CraftInventoryView$getHandle.invoke(view);
+        } catch (IllegalArgumentException ignored) {
+        }
+
+        return CraftContainer$delegate.get(view);
+    }
+
+    private static List<?> getDataSlots(Object containerMenu) throws ReflectiveOperationException {
+        if (AbstractContainerMenu$dataSlots == null) {
+            final Class<?> containerClass = containerMenu.getClass();
+            AbstractContainerMenu$dataSlots = containerClass.getField(REMAPPER.remapFieldName(containerClass, "dataSlots"));
+        }
+
+        return (List<?>) AbstractContainerMenu$dataSlots.get(containerMenu);
+    }
+
+    public static int getContainerId(InventoryView view) throws ReflectiveOperationException {
+        final Object containerMenu = getContainerMenu(view);
+
+        if (AbstractContainerMenu$containerId == null) {
+            final Class<?> containerClass = containerMenu.getClass();
+            AbstractContainerMenu$containerId = containerClass.getDeclaredField(REMAPPER.remapFieldName(containerClass, "containerId"));
+        }
+
+        return (int) AbstractContainerMenu$containerId.get(containerMenu);
+    }
+
+    /**
+     * Retrieve the values of all {@link InventoryView.Property}s that are applicable to an {@link InventoryView}.
+     * <p>
+     * This is needed as Bukkit does not have a way to get properties, only set them
+     * (via {@link InventoryView#setProperty(InventoryView.Property, int)}).
+     * <p>
+     * This method can be replaced if Bukkit adds a way to do this.
+     */
+    public static Object2IntMap<InventoryView.Property> getContainerProperties(InventoryView view) throws ReflectiveOperationException {
+        final List<?> dataSlots = getDataSlots(view);
+
+        final Object2IntMap<InventoryView.Property> resultMap = new Object2IntArrayMap<>();
+
+        for (final InventoryView.Property property : InventoryView.Property.values()) {
+            if (property.getType() != view.getType()) {
+                // property does not apply to this InventoryType, so trying to set it won't work
+                continue;
+            }
+
+            @SuppressWarnings("UnstableApiUsage") final int propertyId = property.getId();
+
+            if (dataSlots.size() <= propertyId) {
+                // list is too small to contain this property
+                continue;
+            }
+
+            final Object dataSlot = dataSlots.get(propertyId);
+
+            if (DataSlot$get == null) {
+                final Class<?> dataSlotClass = dataSlot.getClass();
+                DataSlot$get = dataSlotClass.getMethod(REMAPPER.remapMethodName(dataSlotClass, "get"));
+            }
+
+            final int value = (int) DataSlot$get.invoke(dataSlot);
+
+            resultMap.put(property, value);
+        }
+
+        return resultMap;
     }
 }

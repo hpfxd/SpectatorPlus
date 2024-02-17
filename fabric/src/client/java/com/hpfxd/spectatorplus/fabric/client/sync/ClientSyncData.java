@@ -8,6 +8,7 @@ import java.util.UUID;
 
 public class ClientSyncData {
     public final UUID playerId;
+
     public final NonNullList<ItemStack> hotbarItems = NonNullList.withSize(9, ItemStack.EMPTY);
     public int selectedHotbarSlot = -1;
     public FoodData foodData;
