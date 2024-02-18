@@ -26,7 +26,13 @@ public sealed class ReplicaSyncedContainer extends SyncedContainer permits Craft
     @Override
     public void update() {
         // Sync all item slots
-        this.spectatorView.getTopInventory().setContents(this.targetView.getTopInventory().getContents());
+        final Inventory targetInventory = this.targetView.getTopInventory();
+        final Inventory spectatorInventory = this.spectatorView.getTopInventory();
+        // Cannot simply do spectatorInventory.setContents(targetInventory.getContents()) as that will only get items
+        // from the primary inventory in some menu types (e.g. stonecutter)
+        for (int slot = 0; slot < targetInventory.getSize(); slot++) {
+            spectatorInventory.setItem(slot, targetInventory.getItem(slot));
+        }
 
         // Note: The Bukkit InventoryView.Property API is flawed. Each property can only apply to one InventoryType,
         // but they should apply to multiple. Example: The COOK_TIME property should be able to be set on

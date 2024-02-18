@@ -8,7 +8,6 @@ import org.jetbrains.annotations.Nullable;
 public abstract sealed class SyncedScreen permits SyncedContainer, SyncedPlayerInventory {
     protected final Player spectator;
     protected InventoryView spectatorView;
-    protected int containerId = -1; // todo remove
 
     public SyncedScreen(Player spectator) {
         this.spectator = spectator;
