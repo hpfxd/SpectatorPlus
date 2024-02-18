@@ -8,4 +8,5 @@ public class ClientConfig {
     public boolean showSpectators = true;
     public boolean highlightSpectators = true;
     public boolean teleportAutoSpectate = false;
+    public boolean openScreens = true;
 }

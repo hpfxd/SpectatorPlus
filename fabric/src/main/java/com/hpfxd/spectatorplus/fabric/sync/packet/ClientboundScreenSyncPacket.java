@@ -28,7 +28,7 @@ public record ClientboundScreenSyncPacket(
         return (this.flags & 1) == 1;
     }
 
-    public boolean hasCraftingSlots() {
+    public boolean isClientRequested() {
         return (this.flags >> 1 & 1) == 1;
     }
 

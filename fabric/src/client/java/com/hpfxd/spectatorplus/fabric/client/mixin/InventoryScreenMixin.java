@@ -36,7 +36,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
     private static InventoryMenu spectatorplus$useCustomInventoryMenu(Player instance) {
         // I'm not aware of a way to check if this is an instance of SyncedInventoryScreen, otherwise I would here
 
-        if (ScreenSyncController.isPendingOpen) {
+        if (ScreenSyncController.isPendingOpen && ScreenSyncController.syncedInventory != null) {
             return new SyncedInventoryMenu(ScreenSyncController.syncedInventory, true, instance);
         }
         return instance.inventoryMenu;
@@ -52,7 +52,7 @@ public abstract class InventoryScreenMixin extends AbstractContainerScreen<Inven
     private static Inventory spectatorplus$modifySyncedInventory(Player instance) {
         // I'm not aware of a way to check if this is an instance of SyncedInventoryScreen, otherwise I would here
 
-        if (ScreenSyncController.isPendingOpen) {
+        if (ScreenSyncController.isPendingOpen && ScreenSyncController.syncedInventory != null) {
             return ScreenSyncController.syncedInventory;
         }
         return instance.getInventory();

@@ -6,5 +6,5 @@ import net.minecraft.world.item.ItemStack;
 public class ScreenSyncData {
     public NonNullList<ItemStack> inventoryItems;
     public boolean isSurvivalInventory;
-    public boolean hasCraftingSlots;
+    public boolean isClientRequested;
 }

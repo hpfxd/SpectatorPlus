@@ -13,14 +13,14 @@ public record ClientboundScreenSyncPacket(
 ) implements ClientboundSyncPacket {
     public static final NamespacedKey ID = new NamespacedKey("spectatorplus", "screen_sync");
 
-    public static ClientboundScreenSyncPacket of(UUID playerId, boolean isSurvivalInventory, boolean hasCraftingSlots) {
+    public static ClientboundScreenSyncPacket of(UUID playerId, boolean isSurvivalInventory, boolean isClientRequested) {
         int flags = 0;
 
         if (isSurvivalInventory) {
             flags |= 0x01;
         }
 
-        if (hasCraftingSlots) {
+        if (isClientRequested) {
             flags |= 0x02;
         }
 

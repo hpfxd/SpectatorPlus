@@ -32,9 +32,4 @@ public final class CraftingSyncedContainer extends ReplicaSyncedContainer {
     public boolean isSurvivalInventory() {
         return true;
     }
-
-    @Override
-    public boolean hasCraftingSlots() {
-        return true;
-    }
 }

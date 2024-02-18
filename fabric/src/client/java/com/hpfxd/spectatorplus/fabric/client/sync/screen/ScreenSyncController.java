@@ -44,7 +44,7 @@ public class ScreenSyncController {
 
         isPendingOpen = true;
         syncData.screen.isSurvivalInventory = packet.isSurvivalInventory();
-        syncData.screen.hasCraftingSlots = packet.hasCraftingSlots();
+        syncData.screen.isClientRequested = packet.isClientRequested();
     }
 
     private static void handle(ClientboundInventorySyncPacket packet, LocalPlayer player, PacketSender sender) {
@@ -81,8 +81,6 @@ public class ScreenSyncController {
 
     public static void openPlayerInventory(Minecraft mc) {
         final Player player = SpecUtil.getCameraPlayer(mc);
-
-        createInventory(player);
         final SyncedInventoryScreen screen = new SyncedInventoryScreen(player);
 
         handleNewSyncedScreen(mc, screen);
@@ -107,9 +105,9 @@ public class ScreenSyncController {
         });
     }
 
-    public static void createInventory(Player spectated) {
+    public static boolean createInventory(Player spectated) {
         if (syncData.screen.inventoryItems == null) {
-            return;
+            return false;
         }
 
         syncedInventory = new Inventory(spectated);
@@ -117,5 +115,6 @@ public class ScreenSyncController {
         for (int i = 0; i < syncData.screen.inventoryItems.size(); i++) {
             syncedInventory.items.set(i, syncData.screen.inventoryItems.get(i));
         }
+        return true;
     }
 }

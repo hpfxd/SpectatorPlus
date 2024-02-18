@@ -32,7 +32,7 @@ public class SyncedInventoryMenu extends InventoryMenu {
     @Override
     protected @NotNull Slot addSlot(Slot slot) {
         if (slot.container == this.getCraftSlots()) {
-            if (ClientSyncController.syncData.screen.hasCraftingSlots) {
+            if (!ClientSyncController.syncData.screen.isClientRequested) {
                 final Slot s = super.addSlot(slot);
                 if (slot.index == 4) {
                     // Add dummy slots after craft slots, since this inventory doesn't exist on the server side and is actually

@@ -154,7 +154,7 @@ public class ScreenSyncHandler implements Listener {
 
         this.screens.put(spectator.getUniqueId(), screen);
 
-        this.plugin.getSyncController().sendPacket(spectator, ClientboundScreenSyncPacket.of(spectator.getSpectatorTarget().getUniqueId(), screen.isSurvivalInventory(), screen.hasCraftingSlots()));
+        this.plugin.getSyncController().sendPacket(spectator, ClientboundScreenSyncPacket.of(spectator.getSpectatorTarget().getUniqueId(), screen.isSurvivalInventory(), screen.isRequestedByClient()));
 
         if (spectator.hasPermission(INVENTORY_PERMISSION)) {
             if (screen.getBottomInventory() instanceof final PlayerInventory inventory) {

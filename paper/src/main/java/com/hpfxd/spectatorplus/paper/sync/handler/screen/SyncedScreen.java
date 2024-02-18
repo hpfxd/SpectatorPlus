@@ -52,10 +52,6 @@ public abstract sealed class SyncedScreen permits SyncedContainer, SyncedPlayerI
         return false;
     }
 
-    public boolean hasCraftingSlots() {
-        return false;
-    }
-
     public Player getSpectator() {
         return this.spectator;
     }
