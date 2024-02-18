@@ -19,16 +19,8 @@ public sealed class ReplicaSyncedContainer extends SyncedContainer permits Craft
      */
     private boolean getPropertiesFailed;
 
-    public static Inventory createReplicaInventory(InventoryHolder owner, InventoryView targetView) {
-        if (targetView.getType() == InventoryType.CHEST || targetView.getType() == InventoryType.ENDER_CHEST) {
-            return Bukkit.createInventory(owner, targetView.getTopInventory().getSize(), targetView.title());
-        } else {
-            return Bukkit.createInventory(owner, targetView.getType(), targetView.title());
-        }
-    }
-
-    public ReplicaSyncedContainer(Player spectator, InventoryView spectatorView, InventoryView targetView) {
-        super(spectator, spectatorView, targetView);
+    public ReplicaSyncedContainer(Player spectator, InventoryView targetView) {
+        super(spectator, targetView);
     }
 
     @Override
@@ -50,6 +42,20 @@ public sealed class ReplicaSyncedContainer extends SyncedContainer permits Craft
                 this.getPropertiesFailed = true;
                 JavaPlugin.getPlugin(SpectatorPlugin.class).getSLF4JLogger().warn("Failed to retrieve container properties for a replica container", e);
             }
+        }
+    }
+
+    @Override
+    protected InventoryView openToSpectator() {
+        final Inventory inventory = createReplicaInventory(this.spectator, this.targetView);
+        return this.spectator.openInventory(inventory);
+    }
+
+    private static Inventory createReplicaInventory(InventoryHolder owner, InventoryView targetView) {
+        if (targetView.getType() == InventoryType.CHEST || targetView.getType() == InventoryType.ENDER_CHEST) {
+            return Bukkit.createInventory(owner, targetView.getTopInventory().getSize(), targetView.title());
+        } else {
+            return Bukkit.createInventory(owner, targetView.getType(), targetView.title());
         }
     }
 }

@@ -11,24 +11,21 @@ import org.jetbrains.annotations.NotNull;
 public final class SyncedPlayerInventory extends SyncedScreen {
     private static Inventory DUMMY_INVENTORY;
 
-    public static Inventory getDummyInventory() {
-        if (DUMMY_INVENTORY == null) {
-            DUMMY_INVENTORY = Bukkit.createInventory(null, 9, Component.translatable("container.inventory"));
-        }
-
-        return DUMMY_INVENTORY;
-    }
-
     private final PlayerInventory targetInventory;
 
-    public SyncedPlayerInventory(Player spectator, InventoryView spectatorView, PlayerInventory targetInventory) {
-        super(spectator, spectatorView);
+    public SyncedPlayerInventory(Player spectator, PlayerInventory targetInventory) {
+        super(spectator);
         this.targetInventory = targetInventory;
     }
 
     @Override
     public @NotNull PlayerInventory getBottomInventory() {
         return this.targetInventory;
+    }
+
+    @Override
+    protected InventoryView openToSpectator() {
+        return this.spectator.openInventory(getDummyInventory());
     }
 
     @Override
@@ -40,5 +37,18 @@ public final class SyncedPlayerInventory extends SyncedScreen {
     public boolean requiresClientMod() {
         // If a client doesn't have the mod installed, all would will see is an empty inventory.
         return true;
+    }
+
+    @Override
+    public boolean isSurvivalInventory() {
+        return true;
+    }
+
+    private static Inventory getDummyInventory() {
+        if (DUMMY_INVENTORY == null) {
+            DUMMY_INVENTORY = Bukkit.createInventory(null, 9, Component.translatable("container.inventory"));
+        }
+
+        return DUMMY_INVENTORY;
     }
 }

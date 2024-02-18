@@ -4,7 +4,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryView;
 
 public final class DirectSyncedContainer extends SyncedContainer {
-    public DirectSyncedContainer(Player spectator, InventoryView spectatorView, InventoryView targetView) {
-        super(spectator, spectatorView, targetView);
+    public DirectSyncedContainer(Player spectator, InventoryView targetView) {
+        super(spectator, targetView);
+    }
+
+    @Override
+    protected InventoryView openToSpectator() {
+        return this.spectator.openInventory(this.targetView.getTopInventory());
     }
 }

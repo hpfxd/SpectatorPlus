@@ -10,7 +10,6 @@ import java.util.UUID;
 
 public record ClientboundInventorySyncPacket(
         UUID playerId,
-        int containerId,
         ItemStack[] inventoryItems
 ) implements ClientboundSyncPacket {
     public static final int ITEMS_LENGTH = 4 * 9;

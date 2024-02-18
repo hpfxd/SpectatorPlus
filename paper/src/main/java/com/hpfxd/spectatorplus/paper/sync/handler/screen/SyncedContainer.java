@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
 public abstract sealed class SyncedContainer extends SyncedScreen permits DirectSyncedContainer, ReplicaSyncedContainer {
     protected final InventoryView targetView;
 
-    protected SyncedContainer(Player spectator, InventoryView spectatorView, InventoryView targetView) {
-        super(spectator, spectatorView);
+    protected SyncedContainer(Player spectator, InventoryView targetView) {
+        super(spectator);
         this.targetView = targetView;
     }
 

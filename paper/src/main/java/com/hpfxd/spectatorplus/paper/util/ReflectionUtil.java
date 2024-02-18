@@ -144,7 +144,7 @@ public class ReflectionUtil {
 
     private static List<?> getDataSlots(Object containerMenu) throws ReflectiveOperationException {
         if (AbstractContainerMenu$dataSlots == null) {
-            final Class<?> containerClass = containerMenu.getClass();
+            final Class<?> containerClass = Class.forName(REMAPPER.remapClassName("net.minecraft.world.inventory.AbstractContainerMenu"));
             AbstractContainerMenu$dataSlots = containerClass.getField(REMAPPER.remapFieldName(containerClass, "dataSlots"));
         }
 
@@ -155,7 +155,7 @@ public class ReflectionUtil {
         final Object containerMenu = getContainerMenu(view);
 
         if (AbstractContainerMenu$containerId == null) {
-            final Class<?> containerClass = containerMenu.getClass();
+            final Class<?> containerClass = Class.forName(REMAPPER.remapClassName("net.minecraft.world.inventory.AbstractContainerMenu"));
             AbstractContainerMenu$containerId = containerClass.getDeclaredField(REMAPPER.remapFieldName(containerClass, "containerId"));
         }
 
@@ -171,7 +171,8 @@ public class ReflectionUtil {
      * This method can be replaced if Bukkit adds a way to do this.
      */
     public static Object2IntMap<InventoryView.Property> getContainerProperties(InventoryView view) throws ReflectiveOperationException {
-        final List<?> dataSlots = getDataSlots(view);
+        final Object containerMenu = getContainerMenu(view);
+        final List<?> dataSlots = getDataSlots(containerMenu);
 
         final Object2IntMap<InventoryView.Property> resultMap = new Object2IntArrayMap<>();
 
@@ -191,8 +192,9 @@ public class ReflectionUtil {
             final Object dataSlot = dataSlots.get(propertyId);
 
             if (DataSlot$get == null) {
-                final Class<?> dataSlotClass = dataSlot.getClass();
+                final Class<?> dataSlotClass = Class.forName(REMAPPER.remapClassName("net.minecraft.world.inventory.DataSlot"));
                 DataSlot$get = dataSlotClass.getMethod(REMAPPER.remapMethodName(dataSlotClass, "get"));
+                DataSlot$get.setAccessible(true);
             }
 
             final int value = (int) DataSlot$get.invoke(dataSlot);

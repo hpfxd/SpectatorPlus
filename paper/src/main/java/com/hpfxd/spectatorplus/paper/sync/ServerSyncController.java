@@ -1,6 +1,7 @@
 package com.hpfxd.spectatorplus.paper.sync;
 
 import com.google.common.collect.Iterables;
+import com.google.common.io.ByteArrayDataInput;
 import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import com.hpfxd.spectatorplus.paper.SpectatorPlugin;
@@ -9,6 +10,7 @@ import com.hpfxd.spectatorplus.paper.sync.handler.FoodSyncHandler;
 import com.hpfxd.spectatorplus.paper.sync.handler.InventorySyncHandler;
 import com.hpfxd.spectatorplus.paper.sync.handler.SelectedSlotSyncHandler;
 import com.hpfxd.spectatorplus.paper.sync.handler.screen.ScreenSyncHandler;
+import com.hpfxd.spectatorplus.paper.sync.packet.ServerboundRequestInventoryOpenPacket;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Player;
@@ -16,6 +18,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Iterator;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public class ServerSyncController implements PluginMessageListener {
@@ -82,5 +85,27 @@ public class ServerSyncController implements PluginMessageListener {
 
     @Override
     public void onPluginMessageReceived(@NotNull String channel, @NotNull Player player, byte[] message) {
+        final NamespacedKey key = NamespacedKey.fromString(channel);
+        final Function<ByteArrayDataInput, ? extends ServerboundSyncPacket> constructor = SyncPackets.SERVERBOUND.get(key);
+
+        if (constructor == null) {
+            this.plugin.getSLF4JLogger().warn("Received unknown packet on channel \"{}\"", channel);
+            return;
+        }
+
+        final ByteArrayDataInput buf = ByteStreams.newDataInput(message);
+        final ServerboundSyncPacket packet = constructor.apply(buf);
+
+        if (packet instanceof ServerboundRequestInventoryOpenPacket p) {
+            this.handle(player, p);
+        }
+    }
+
+    private void handle(Player sender, ServerboundRequestInventoryOpenPacket packet) {
+        final Player target = Bukkit.getPlayer(packet.playerId());
+
+        if (target != null) {
+            this.screenSyncHandler.onRequestOpen(sender, target);
+        }
     }
 }

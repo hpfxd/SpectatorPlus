@@ -3,8 +3,8 @@ package com.hpfxd.spectatorplus.paper.sync.handler.screen;
 import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import com.hpfxd.spectatorplus.paper.SpectatorPlugin;
-import com.hpfxd.spectatorplus.paper.sync.handler.InventorySyncHandler;
 import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundInventorySyncPacket;
+import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundScreenSyncPacket;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -16,7 +16,6 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
@@ -25,6 +24,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
+
+import static com.hpfxd.spectatorplus.paper.sync.handler.InventorySyncHandler.INVENTORY_PERMISSION;
 
 public class ScreenSyncHandler implements Listener {
     private static final String PERMISSION = "spectatorplus.sync.screen";
@@ -52,14 +53,10 @@ public class ScreenSyncHandler implements Listener {
     }
 
     public void updatePlayerInventory(Player player, ItemStack[] inventorySendSlots) {
-        for (final Player spectator : this.plugin.getSyncController().getSpectators(player, InventorySyncHandler.INVENTORY_PERMISSION)) {
-            final SyncedScreen screen = this.screens.get(spectator.getUniqueId());
-
-            if (screen != null) {
-                // need to create a packet per-spectator as the containerId is likely to be different
-                this.plugin.getSyncController().sendPacket(spectator, new ClientboundInventorySyncPacket(player.getUniqueId(), screen.containerId, inventorySendSlots));
-            }
-        }
+        this.plugin.getSyncController().sendPacket(this.plugin.getSyncController().getSpectators(player, eligible -> {
+            // eligible spectator must have permission and viewing a synced screen to receive packet
+            return eligible.hasPermission(INVENTORY_PERMISSION) && this.isViewingSyncedScreen(eligible);
+        }), new ClientboundInventorySyncPacket(player.getUniqueId(), inventorySendSlots));
     }
 
     public boolean isViewingSyncedScreen(HumanEntity spectator) {
@@ -100,48 +97,54 @@ public class ScreenSyncHandler implements Listener {
                 break;
         }
     }
+
+    public void onRequestOpen(Player spectator, Player target) {
+        if (spectator.hasPermission(INVENTORY_PERMISSION)) {
+            this.openPlayerInventory(spectator, target);
+        }
+
+        // TODO maybe send a message if the player doesn't have permission?
+    }
     
     private void openPlayerInventory(Player spectator, Player target) {
-        final InventoryView spectatorView = spectator.openInventory(SyncedPlayerInventory.getDummyInventory());
-        final SyncedScreen screen = new SyncedPlayerInventory(spectator, spectatorView, target.getInventory());
+        final SyncedScreen screen = new SyncedPlayerInventory(spectator, target.getInventory());
         
         this.setScreen(spectator, screen);
     }
 
     private void openSyncedDirectContainer(Player spectator, InventoryView targetView) {
-        final InventoryView spectatorView = spectator.openInventory(targetView.getTopInventory());
-        final SyncedScreen screen = new DirectSyncedContainer(spectator, spectatorView, targetView);
+        final SyncedScreen screen = new DirectSyncedContainer(spectator, targetView);
 
         this.setScreen(spectator, screen);
     }
 
     private void openSyncedReplicaContainer(Player spectator, InventoryView targetView) {
-        final Inventory replicaInventory = ReplicaSyncedContainer.createReplicaInventory(spectator, targetView);
-        final InventoryView spectatorView = spectator.openInventory(replicaInventory);
-        final SyncedScreen screen = new ReplicaSyncedContainer(spectator, spectatorView, targetView);
+        final SyncedScreen screen = new ReplicaSyncedContainer(spectator, targetView);
 
         this.setScreen(spectator, screen);
     }
 
     private void openSyncedCraftingContainer(Player spectator, InventoryView targetView) {
-        final Inventory replicaInventory = CraftingSyncedContainer.createReplicaInventory(spectator, targetView);
-        final InventoryView spectatorView = spectator.openInventory(replicaInventory);
-        final SyncedScreen screen = new CraftingSyncedContainer(spectator, spectatorView, targetView);
+        final SyncedScreen screen = new CraftingSyncedContainer(spectator, targetView);
 
         this.setScreen(spectator, screen);
     }
     
     private void setScreen(Player spectator, SyncedScreen screen) {
+        // todo check client mod
+
         this.screens.put(spectator.getUniqueId(), screen);
 
-        // todo send init screen packet
+        this.plugin.getSyncController().sendPacket(spectator, ClientboundScreenSyncPacket.of(spectator.getSpectatorTarget().getUniqueId(), screen.isSurvivalInventory(), screen.hasCraftingSlots()));
 
-        if (spectator.hasPermission(InventorySyncHandler.INVENTORY_PERMISSION)) {
+        if (spectator.hasPermission(INVENTORY_PERMISSION)) {
             if (screen.getBottomInventory() instanceof final PlayerInventory inventory) {
                 // Sync the bottom inventory with the spectator (the target's inventory).
-                this.plugin.getSyncController().getInventorySyncHandler().sendInventory(spectator, inventory, screen.containerId);
+                this.plugin.getSyncController().getInventorySyncHandler().sendInventory(spectator, inventory);
             }
         }
+
+        screen.open();
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -157,9 +160,10 @@ public class ScreenSyncHandler implements Listener {
                 final InventoryType currentInventoryType = spectator.getOpenInventory().getTopInventory().getType();
 
                 // if the player currently has an inventory screen already open, we want to skip opening this new inventory
-                if (currentInventoryType == InventoryType.CRAFTING || currentInventoryType == InventoryType.CREATIVE) {
-                    // unless, their current inventory is already a synced one, which is okay to replace
-                    if (!this.screens.containsKey(spectator.getUniqueId())) {
+                if (currentInventoryType != InventoryType.CRAFTING && currentInventoryType != InventoryType.CREATIVE) {
+                    // unless, their current inventory is already a synced one (and wasn't requested by client), which is okay to replace
+                    final SyncedScreen screen = this.screens.get(spectator.getUniqueId());
+                    if (screen == null || !screen.isRequestedByClient()) {
                         continue;
                     }
                 }

@@ -75,7 +75,7 @@ public class InventorySyncHandler implements Listener {
         }
     }
 
-    public void sendInventory(Player spectator, PlayerInventory inventory, int containerId) {
+    public void sendInventory(Player spectator, PlayerInventory inventory) {
         final ItemStack[] slots = new ItemStack[ClientboundInventorySyncPacket.ITEMS_LENGTH];
         for (int slot = 0; slot < slots.length; slot++) {
             ItemStack item = inventory.getItem(slot);
@@ -86,7 +86,7 @@ public class InventorySyncHandler implements Listener {
             slots[slot] = item;
         }
 
-        this.plugin.getSyncController().sendPacket(spectator, new ClientboundInventorySyncPacket(inventory.getHolder().getUniqueId(), containerId, slots));
+        this.plugin.getSyncController().sendPacket(spectator, new ClientboundInventorySyncPacket(inventory.getHolder().getUniqueId(), slots));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

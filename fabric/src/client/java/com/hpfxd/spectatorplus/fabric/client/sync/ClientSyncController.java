@@ -1,5 +1,6 @@
 package com.hpfxd.spectatorplus.fabric.client.sync;
 
+import com.hpfxd.spectatorplus.fabric.client.sync.screen.ScreenSyncController;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundExperienceSyncPacket;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundFoodSyncPacket;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundHotbarSyncPacket;
@@ -23,8 +24,10 @@ public class ClientSyncController {
         ClientPlayNetworking.registerGlobalReceiver(ClientboundHotbarSyncPacket.TYPE, ClientSyncController::handle);
         ClientPlayNetworking.registerGlobalReceiver(ClientboundSelectedSlotSyncPacket.TYPE, ClientSyncController::handle);
 
-        ClientLoginConnectionEvents.INIT.register((handler, client) -> syncData = null);
-        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> syncData = null);
+        ClientLoginConnectionEvents.INIT.register((handler, client) -> setSyncData(null));
+        ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> setSyncData(null));
+
+        ScreenSyncController.init();
     }
 
     private static void handle(ClientboundExperienceSyncPacket packet, LocalPlayer player, PacketSender sender) {
@@ -64,8 +67,10 @@ public class ClientSyncController {
         syncData.selectedHotbarSlot = packet.selectedSlot();
     }
 
-    private static void setSyncData(UUID playerId) {
-        if (syncData == null || !syncData.playerId.equals(playerId)) {
+    public static void setSyncData(UUID playerId) {
+        if (playerId == null) {
+            syncData = null;
+        } else if (syncData == null || !syncData.playerId.equals(playerId)) {
             syncData = new ClientSyncData(playerId);
         }
     }
