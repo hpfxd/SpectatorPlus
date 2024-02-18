@@ -114,6 +114,9 @@ public class ScreenSyncHandler implements Listener {
 
             if (view.getType() == InventoryType.CRAFTING || view.getType() == InventoryType.CREATIVE) {
                 for (final Player spectator : this.plugin.getSyncController().getSpectators(target, PERMISSION)) {
+                    if (!this.canOverrideSpectatorView(spectator, spectator.getOpenInventory())) {
+                        continue;
+                    }
                     this.openSyncedCraftingContainer(spectator, view);
                 }
             }
@@ -173,15 +176,9 @@ public class ScreenSyncHandler implements Listener {
             this.ignoreInventoryEvents = true;
 
             for (final Player spectator : this.plugin.getSyncController().getSpectators((Player) event.getPlayer(), PERMISSION)) {
-                final InventoryType currentInventoryType = spectator.getOpenInventory().getTopInventory().getType();
-
                 // if the player currently has an inventory screen already open, we want to skip opening this new inventory
-                if (currentInventoryType != InventoryType.CRAFTING && currentInventoryType != InventoryType.CREATIVE) {
-                    // unless, their current inventory is already a synced one (and wasn't requested by client), which is okay to replace
-                    final SyncedScreen screen = this.screens.get(spectator.getUniqueId());
-                    if (screen == null || !screen.isRequestedByClient()) {
-                        continue;
-                    }
+                if (!this.canOverrideSpectatorView(spectator, spectator.getOpenInventory())) {
+                    continue;
                 }
 
                 this.openSyncedContainer(spectator, event.getView());
@@ -189,6 +186,15 @@ public class ScreenSyncHandler implements Listener {
         } finally {
             this.ignoreInventoryEvents = false;
         }
+    }
+
+    private boolean canOverrideSpectatorView(HumanEntity spectator, InventoryView view) {
+        final SyncedScreen screen = this.screens.get(spectator.getUniqueId());
+        if (screen != null && screen.isRequestedByClient()) {
+            return false;
+        }
+
+        return view.getType() == InventoryType.CRAFTING || view.getType() == InventoryType.CREATIVE;
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
