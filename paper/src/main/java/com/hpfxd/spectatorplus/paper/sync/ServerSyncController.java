@@ -10,6 +10,7 @@ import com.hpfxd.spectatorplus.paper.sync.handler.FoodSyncHandler;
 import com.hpfxd.spectatorplus.paper.sync.handler.InventorySyncHandler;
 import com.hpfxd.spectatorplus.paper.sync.handler.SelectedSlotSyncHandler;
 import com.hpfxd.spectatorplus.paper.sync.handler.screen.ScreenSyncHandler;
+import com.hpfxd.spectatorplus.paper.sync.packet.ServerboundOpenedInventorySyncPacket;
 import com.hpfxd.spectatorplus.paper.sync.packet.ServerboundRequestInventoryOpenPacket;
 import org.bukkit.Bukkit;
 import org.bukkit.NamespacedKey;
@@ -96,9 +97,15 @@ public class ServerSyncController implements PluginMessageListener {
         final ByteArrayDataInput buf = ByteStreams.newDataInput(message);
         final ServerboundSyncPacket packet = constructor.apply(buf);
 
-        if (packet instanceof ServerboundRequestInventoryOpenPacket p) {
+        if (packet instanceof ServerboundOpenedInventorySyncPacket p) {
+            this.handle(player, p);
+        } if (packet instanceof ServerboundRequestInventoryOpenPacket p) {
             this.handle(player, p);
         }
+    }
+
+    private void handle(Player sender, ServerboundOpenedInventorySyncPacket packet) {
+        this.screenSyncHandler.onPlayerOpenInventory(sender);
     }
 
     private void handle(Player sender, ServerboundRequestInventoryOpenPacket packet) {

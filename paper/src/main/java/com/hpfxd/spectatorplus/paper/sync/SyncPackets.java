@@ -8,6 +8,7 @@ import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundHotbarSyncPacket;
 import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundInventorySyncPacket;
 import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundScreenSyncPacket;
 import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundSelectedSlotSyncPacket;
+import com.hpfxd.spectatorplus.paper.sync.packet.ServerboundOpenedInventorySyncPacket;
 import com.hpfxd.spectatorplus.paper.sync.packet.ServerboundRequestInventoryOpenPacket;
 import org.bukkit.NamespacedKey;
 
@@ -25,6 +26,7 @@ public final class SyncPackets {
             .build();
 
     public static final Map<NamespacedKey, Function<ByteArrayDataInput, ? extends ServerboundSyncPacket>> SERVERBOUND = ImmutableMap.<NamespacedKey, Function<ByteArrayDataInput, ? extends ServerboundSyncPacket>>builder()
+            .put(ServerboundOpenedInventorySyncPacket.ID, ServerboundOpenedInventorySyncPacket::new)
             .put(ServerboundRequestInventoryOpenPacket.ID, ServerboundRequestInventoryOpenPacket::new)
             .build();
 

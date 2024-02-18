@@ -105,6 +105,22 @@ public class ScreenSyncHandler implements Listener {
 
         // TODO maybe send a message if the player doesn't have permission?
     }
+
+    public void onPlayerOpenInventory(Player target) {
+        try {
+            this.ignoreInventoryEvents = true;
+
+            final InventoryView view = target.getOpenInventory();
+
+            if (view.getType() == InventoryType.CRAFTING || view.getType() == InventoryType.CREATIVE) {
+                for (final Player spectator : this.plugin.getSyncController().getSpectators(target, PERMISSION)) {
+                    this.openSyncedCraftingContainer(spectator, view);
+                }
+            }
+        } finally {
+            this.ignoreInventoryEvents = false;
+        }
+    }
     
     private void openPlayerInventory(Player spectator, Player target) {
         final SyncedScreen screen = new SyncedPlayerInventory(spectator, target.getInventory());
@@ -212,7 +228,12 @@ public class ScreenSyncHandler implements Listener {
         }
 
         if (event.getNewSpectatorTarget() instanceof final Player target && spectator.hasPermission(PERMISSION)) {
-            this.openSyncedContainer(spectator, target.getOpenInventory());
+            final InventoryView view = target.getOpenInventory();
+
+            // Only open if the current view is not CRAFTING or CREATIVE
+            if (view.getType() != InventoryType.CRAFTING && view.getType() != InventoryType.CREATIVE) {
+                this.openSyncedContainer(spectator, view);
+            }
         }
     }
 

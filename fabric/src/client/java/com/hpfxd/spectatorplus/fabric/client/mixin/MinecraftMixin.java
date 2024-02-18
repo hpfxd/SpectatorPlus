@@ -5,6 +5,7 @@ import com.hpfxd.spectatorplus.fabric.client.sync.ClientSyncController;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.hpfxd.spectatorplus.fabric.client.util.SpecUtil;
+import com.hpfxd.spectatorplus.fabric.sync.packet.ServerboundOpenedInventorySyncPacket;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ServerboundRequestInventoryOpenPacket;
 import com.llamalad7.mixinextras.injector.WrapWithCondition;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -59,6 +60,11 @@ public abstract class MinecraftMixin {
                 ClientPlayNetworking.send(new ServerboundRequestInventoryOpenPacket(spectated.getUUID()));
                 return false;
             }
+        }
+
+        if (ClientPlayNetworking.canSend(ServerboundOpenedInventorySyncPacket.TYPE)) {
+            // just let the server we've opened our inventory. this is used to sync with other users spectating this client
+            ClientPlayNetworking.send(new ServerboundOpenedInventorySyncPacket());
         }
         return true;
     }
