@@ -48,6 +48,9 @@ public abstract sealed class SyncedScreen permits SyncedContainer, SyncedPlayerI
         return false;
     }
 
+    /**
+     * Whether this screen is shown to the client as a survival inventory screen.
+     */
     public boolean isSurvivalInventory() {
         return false;
     }

@@ -93,6 +93,7 @@ public class ScreenSyncHandler implements Listener {
                 this.openSyncedReplicaContainer(spectator, targetView);
                 break;
             case CRAFTING:
+            case CREATIVE:
                 this.openSyncedCraftingContainer(spectator, targetView);
                 break;
         }
@@ -117,7 +118,7 @@ public class ScreenSyncHandler implements Listener {
                     if (!this.canOverrideSpectatorView(spectator, spectator.getOpenInventory())) {
                         continue;
                     }
-                    this.openSyncedCraftingContainer(spectator, view);
+                    this.openSyncedContainer(spectator, view);
                 }
             }
         } finally {
@@ -150,7 +151,12 @@ public class ScreenSyncHandler implements Listener {
     }
     
     private void setScreen(Player spectator, SyncedScreen screen) {
-        // todo check client mod
+        final boolean hasClientMod = spectator.getListeningPluginChannels().contains(ClientboundScreenSyncPacket.ID.asString());
+
+        if (!hasClientMod && (this.plugin.getServerConfig().screensRequireClientMod || screen.requiresClientMod())) {
+            // The spectator doesn't have the client mod installed and isn't allowed to open this screen.
+            return;
+        }
 
         this.screens.put(spectator.getUniqueId(), screen);
 

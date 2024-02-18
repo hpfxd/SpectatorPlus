@@ -23,3 +23,15 @@ workarounds:
   #   so plugins doing intensive calculations in those events may cause lag.
   # - The workaround will not work properly if another plugin cancels one of the events mentioned above.
   allow-fallback: true
+
+# The plugin contains a feature that allows spectators to view the open screen of the player they are
+# spectating (i.e. a chest, a brewing stand, etc). If a spectator has the client mod installed, inventory
+# contents is also able to be shown below the menu, and pressing the inventory open keybind will open
+# the spectated player's inventory instead of their own. If you wish to disable this feature, you
+# can revoke the permissions.
+screens:
+  # Requires spectators to have the SpectatorPlus client mod installed in order for synced screens to be shown.
+  # Some screens (the player's inventory) always requires the client mod to be installed, regardless of what
+  # this option is set to. Note that clients without the mod have no way to disable the automatic opening
+  # of screens.
+  require-client-mod: true
