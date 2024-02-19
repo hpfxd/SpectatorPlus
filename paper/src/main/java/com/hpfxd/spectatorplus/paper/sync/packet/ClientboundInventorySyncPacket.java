@@ -18,22 +18,7 @@ public record ClientboundInventorySyncPacket(
     @Override
     public void write(ByteArrayDataOutput buf) {
         SerializationUtil.writeUuid(buf, this.playerId);
-
-        buf.writeInt(this.inventoryItems.length);
-
-        for (final ItemStack item : this.inventoryItems) {
-            buf.writeBoolean(item != null);
-
-            if (item != null) {
-                if (item.isEmpty()) {
-                    buf.writeInt(0);
-                } else {
-                    final byte[] itemData = item.serializeAsBytes();
-                    buf.writeInt(itemData.length);
-                    buf.write(itemData);
-                }
-            }
-        }
+        SerializationUtil.writeItems(buf, this.inventoryItems);
     }
 
     @Override

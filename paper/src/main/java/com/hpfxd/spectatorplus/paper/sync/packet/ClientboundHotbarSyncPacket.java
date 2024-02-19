@@ -18,22 +18,7 @@ public record ClientboundHotbarSyncPacket(
     @Override
     public void write(ByteArrayDataOutput buf) {
         SerializationUtil.writeUuid(buf, this.playerId);
-
-        buf.writeInt(this.items.length);
-
-        for (final ItemStack item : this.items) {
-            buf.writeBoolean(item != null);
-
-            if (item != null) {
-                if (item.isEmpty()) {
-                    buf.writeInt(0);
-                } else {
-                    final byte[] itemData = item.serializeAsBytes();
-                    buf.writeInt(itemData.length);
-                    buf.write(itemData);
-                }
-            }
-        }
+        SerializationUtil.writeItems(buf, this.items);
     }
 
     @Override
