@@ -6,6 +6,8 @@ import com.hpfxd.spectatorplus.paper.SpectatorPlugin;
 import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundInventorySyncPacket;
 import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundScreenCursorSyncPacket;
 import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundScreenSyncPacket;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -103,9 +105,9 @@ public class ScreenSyncHandler implements Listener {
     public void onRequestOpen(Player spectator, Player target) {
         if (spectator.hasPermission(INVENTORY_PERMISSION)) {
             this.openPlayerInventory(spectator, target);
+        } else {
+            spectator.sendMessage(Component.translatable("spectatorplus.no-inventory-permission", NamedTextColor.RED));
         }
-
-        // TODO maybe send a message if the player doesn't have permission?
     }
 
     public void onPlayerOpenInventory(Player target) {

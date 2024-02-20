@@ -26,5 +26,7 @@
   "gui.spectatorplus.config.server.allowTransferBetweenLevels.name": "Transfer between worlds",
   "gui.spectatorplus.config.server.allowTransferBetweenLevels.tooltip": "Whether player's spectators transfer with them when\ntravelling between worlds.",
   "gui.spectatorplus.config.server.autoUpdatePosition.name": "Auto-teleport spectators",
-  "gui.spectatorplus.config.server.autoUpdatePosition.tooltip": "Automatically teleports spectators' bodies to their target's position\nevery second. This is a workaround to mitigate %s."
+  "gui.spectatorplus.config.server.autoUpdatePosition.tooltip": "Automatically teleports spectators' bodies to their target's position\nevery second. This is a workaround to mitigate %s.",
+
+  "spectatorplus.no-inventory-permission": "You don't have permission to open the inventory of other players on this server"
 }
