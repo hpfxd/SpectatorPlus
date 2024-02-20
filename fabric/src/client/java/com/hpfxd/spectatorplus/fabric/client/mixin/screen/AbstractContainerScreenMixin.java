@@ -27,7 +27,7 @@ import java.util.List;
 @Mixin(AbstractContainerScreen.class)
 public abstract class AbstractContainerScreenMixin {
     @Unique
-    private static final int MOVE_ANIMATION_TICKS = 6;
+    private static final int MOVE_ANIMATION_TICKS = 4;
 
     @Unique
     private final List<ItemMoveAnimation> animations = new ArrayList<>();
