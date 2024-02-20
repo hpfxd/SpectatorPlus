@@ -82,10 +82,7 @@ public class ScreenSyncController {
     public static void closeSyncedInventory() {
         if (syncedScreen != null) {
             syncedScreen.onClose();
-
-            isPendingOpen = false;
             syncedInventory = null;
-            syncedWindowId = -1;
         }
     }
 
@@ -112,6 +109,7 @@ public class ScreenSyncController {
             syncedScreen = null;
             syncedInventory = null;
             syncedWindowId = -1;
+            syncData.screen = null;
         });
     }
 
