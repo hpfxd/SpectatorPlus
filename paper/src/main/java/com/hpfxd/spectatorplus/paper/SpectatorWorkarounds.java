@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 import java.util.HashMap;
@@ -140,5 +141,10 @@ public class SpectatorWorkarounds implements Listener {
 
         // the spectator has stopped spectating the target. so we don't want to re-apply if the target is tracked again.
         this.tempTargets.remove(spectator.getUniqueId(), target.getUniqueId());
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        this.tempTargets.remove(event.getPlayer().getUniqueId());
     }
 }
