@@ -1,5 +1,6 @@
 package com.hpfxd.spectatorplus.paper;
 
+import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import com.hpfxd.spectatorplus.paper.util.ReflectionUtil;
 import io.papermc.paper.event.player.PlayerTrackEntityEvent;
@@ -127,6 +128,20 @@ public class SpectatorWorkarounds implements Listener {
                     spectator.setSpectatorTarget(target);
                 }
             });
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onStartSpectating(PlayerStartSpectatingEntityEvent event) {
+        if (!this.plugin.getServerConfig().workaroundTeleportOnUntrack) {
+            return;
+        }
+
+        final Player spectator = event.getPlayer();
+        final Entity target = event.getNewSpectatorTarget();
+
+        if (!target.getTrackedBy().contains(spectator)) {
+            this.tempTargets.put(spectator.getUniqueId(), target.getUniqueId());
         }
     }
 
