@@ -1,4 +1,4 @@
-package com.hpfxd.spectatorplus.fabric.client.mixin;
+package com.hpfxd.spectatorplus.fabric.client.mixin.screen;
 
 import com.hpfxd.spectatorplus.fabric.client.SpectatorClientMod;
 import com.hpfxd.spectatorplus.fabric.client.sync.ClientSyncController;

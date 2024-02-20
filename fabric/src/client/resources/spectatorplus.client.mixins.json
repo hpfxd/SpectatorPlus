@@ -3,23 +3,23 @@
   "package": "com.hpfxd.spectatorplus.fabric.client.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "AbstractContainerMenuMixin",
-    "AbstractContainerScreenMixin",
     "ClientLevelAccessor",
     "GameRendererMixin",
     "GuiMixin",
-    "ImageButtonAccessor",
-    "InventoryMenuMixin",
-    "InventoryScreenMixin",
     "ItemInHandRendererAccessor",
     "ItemInHandRendererMixin",
     "LevelRendererAccessor",
     "LevelRendererMixin",
     "LivingEntityMixin",
-    "MenuScreensMixin",
     "MinecraftMixin",
     "PlayerMenuItemMixin",
-    "ScreenEffectRendererMixin"
+    "ScreenEffectRendererMixin",
+    "screen.AbstractContainerMenuMixin",
+    "screen.AbstractContainerScreenMixin",
+    "screen.ImageButtonAccessor",
+    "screen.InventoryMenuMixin",
+    "screen.InventoryScreenMixin",
+    "screen.MenuScreensMixin"
   ],
   "injectors": {
     "defaultRequire": 1

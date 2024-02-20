@@ -1,4 +1,4 @@
-package com.hpfxd.spectatorplus.fabric.client.mixin;
+package com.hpfxd.spectatorplus.fabric.client.mixin.screen;
 
 import com.hpfxd.spectatorplus.fabric.client.sync.screen.ScreenSyncController;
 import com.llamalad7.mixinextras.injector.WrapWithCondition;

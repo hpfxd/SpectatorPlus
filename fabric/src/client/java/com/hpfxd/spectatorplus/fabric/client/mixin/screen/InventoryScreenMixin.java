@@ -1,4 +1,4 @@
-package com.hpfxd.spectatorplus.fabric.client.mixin;
+package com.hpfxd.spectatorplus.fabric.client.mixin.screen;
 
 import com.hpfxd.spectatorplus.fabric.client.gui.screens.SyncedInventoryMenu;
 import com.hpfxd.spectatorplus.fabric.client.gui.screens.SyncedInventoryScreen;

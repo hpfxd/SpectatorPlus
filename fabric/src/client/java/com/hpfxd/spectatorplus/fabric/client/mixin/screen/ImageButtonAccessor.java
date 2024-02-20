@@ -1,4 +1,4 @@
-package com.hpfxd.spectatorplus.fabric.client.mixin;
+package com.hpfxd.spectatorplus.fabric.client.mixin.screen;
 
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.WidgetSprites;

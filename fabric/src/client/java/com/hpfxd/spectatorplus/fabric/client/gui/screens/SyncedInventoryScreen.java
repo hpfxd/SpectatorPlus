@@ -1,6 +1,6 @@
 package com.hpfxd.spectatorplus.fabric.client.gui.screens;
 
-import com.hpfxd.spectatorplus.fabric.client.mixin.ImageButtonAccessor;
+import com.hpfxd.spectatorplus.fabric.client.mixin.screen.ImageButtonAccessor;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.WidgetSprites;
