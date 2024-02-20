@@ -3,6 +3,7 @@ package com.hpfxd.spectatorplus.fabric.client.sync.screen;
 import com.hpfxd.spectatorplus.fabric.client.gui.screens.SyncedInventoryScreen;
 import com.hpfxd.spectatorplus.fabric.client.util.SpecUtil;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundInventorySyncPacket;
+import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundScreenCursorSyncPacket;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundScreenSyncPacket;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientEntityEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
@@ -36,6 +37,7 @@ public class ScreenSyncController {
 
         ClientPlayNetworking.registerGlobalReceiver(ClientboundScreenSyncPacket.TYPE, ScreenSyncController::handle);
         ClientPlayNetworking.registerGlobalReceiver(ClientboundInventorySyncPacket.TYPE, ScreenSyncController::handle);
+        ClientPlayNetworking.registerGlobalReceiver(ClientboundScreenCursorSyncPacket.TYPE, ScreenSyncController::handle);
     }
 
     private static void handle(ClientboundScreenSyncPacket packet, LocalPlayer player, PacketSender sender) {
@@ -67,6 +69,14 @@ public class ScreenSyncController {
                 }
             }
         }
+    }
+
+    private static void handle(ClientboundScreenCursorSyncPacket packet, LocalPlayer player, PacketSender sender) {
+        setSyncData(packet.playerId());
+        syncData.setScreen();
+
+        syncData.screen.cursorItem = packet.cursor();
+        syncData.screen.cursorItemSlot = packet.originSlot();
     }
 
     public static void closeSyncedInventory() {

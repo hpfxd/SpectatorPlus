@@ -6,6 +6,7 @@ import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundExperienceSyncPacket
 import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundFoodSyncPacket;
 import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundHotbarSyncPacket;
 import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundInventorySyncPacket;
+import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundScreenCursorSyncPacket;
 import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundScreenSyncPacket;
 import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundSelectedSlotSyncPacket;
 import com.hpfxd.spectatorplus.paper.sync.packet.ServerboundOpenedInventorySyncPacket;
@@ -21,6 +22,7 @@ public final class SyncPackets {
             .put(ClientboundFoodSyncPacket.ID, ClientboundFoodSyncPacket.class)
             .put(ClientboundHotbarSyncPacket.ID, ClientboundHotbarSyncPacket.class)
             .put(ClientboundInventorySyncPacket.ID, ClientboundInventorySyncPacket.class)
+            .put(ClientboundScreenCursorSyncPacket.ID, ClientboundScreenCursorSyncPacket.class)
             .put(ClientboundScreenSyncPacket.ID, ClientboundScreenSyncPacket.class)
             .put(ClientboundSelectedSlotSyncPacket.ID, ClientboundSelectedSlotSyncPacket.class)
             .build();

@@ -4,6 +4,7 @@ import com.destroystokyo.paper.event.player.PlayerStartSpectatingEntityEvent;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import com.hpfxd.spectatorplus.paper.SpectatorPlugin;
 import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundInventorySyncPacket;
+import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundScreenCursorSyncPacket;
 import com.hpfxd.spectatorplus.paper.sync.packet.ClientboundScreenSyncPacket;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
@@ -125,10 +126,10 @@ public class ScreenSyncHandler implements Listener {
             this.ignoreInventoryEvents = false;
         }
     }
-    
+
     private void openPlayerInventory(Player spectator, Player target) {
         final SyncedScreen screen = new SyncedPlayerInventory(spectator, target.getInventory());
-        
+
         this.setScreen(spectator, screen);
     }
 
@@ -149,7 +150,7 @@ public class ScreenSyncHandler implements Listener {
 
         this.setScreen(spectator, screen);
     }
-    
+
     private void setScreen(Player spectator, SyncedScreen screen) {
         final boolean hasClientMod = spectator.getListeningPluginChannels().contains(ClientboundScreenSyncPacket.ID.asString());
 
@@ -264,6 +265,40 @@ public class ScreenSyncHandler implements Listener {
         if (this.isViewingSyncedScreen(event.getWhoClicked())) {
             event.setCancelled(true);
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onClickMonitor(InventoryClickEvent event) {
+        if (event.getWhoClicked() instanceof final Player player) {
+            final int slot = event.getRawSlot();
+
+            switch (event.getAction()) {
+                case PICKUP_ALL, PICKUP_HALF, PICKUP_SOME, PICKUP_ONE, SWAP_WITH_CURSOR, COLLECT_TO_CURSOR, CLONE_STACK, HOTBAR_SWAP, DROP_ALL_CURSOR, DROP_ONE_CURSOR, PLACE_ALL, PLACE_SOME, PLACE_ONE -> {
+                    Bukkit.getScheduler().runTask(this.plugin, () -> this.updateCursor(player, event.getView(), slot, player.getItemOnCursor()));
+                }
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onDragMonitor(InventoryDragEvent event) {
+        if (event.getWhoClicked() instanceof final Player player) {
+            final ItemStack cursor = event.getCursor() == null ? ItemStack.empty() : event.getCursor();
+            this.updateCursor(player, event.getView(), event.getRawSlots().iterator().next(), cursor);
+        }
+    }
+
+    private void updateCursor(Player player, InventoryView view, int originSlot, ItemStack stack) {
+        if (view.getType() == InventoryType.CRAFTING || view.getType() == InventoryType.CREATIVE) {
+            if (view.getInventory(originSlot) == view.getBottomInventory()) {
+                originSlot += view.getTopInventory().getSize();
+            }
+        }
+
+        this.plugin.getSyncController().sendPacket(this.plugin.getSyncController().getSpectators(player, eligible -> {
+            // eligible spectator must have permission and viewing a synced screen to receive packet
+            return eligible.hasPermission(PERMISSION) && this.isViewingSyncedScreen(eligible);
+        }), new ClientboundScreenCursorSyncPacket(player.getUniqueId(), stack, originSlot));
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
