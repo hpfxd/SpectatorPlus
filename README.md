@@ -11,6 +11,9 @@ with spectator mode.
 
 - Show the held item and health of the spectated player
 - Show the hotbar, health, food, and experience of the spectated player *(Server-side required)*
+- Show the currently open screen of the spectated player, such as when opening a chest or crafting table *(Server-side required)*
+  - If the spectated player has the client-side mod installed as well, it can also show when they open their inventory
+  - Additionally, when pressing the normal inventory keybind, the spectated player's inventory will be opened
 - Allow continuing to spectate even when the player teleports far away or between worlds *(Server-side required)*
     - This is a fix for [MC-107113](https://bugs.mojang.com/browse/MC-107113)
     - Even works for clients without the mod installed!
