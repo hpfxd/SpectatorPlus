@@ -81,6 +81,11 @@ public class ClothConfigIntegration {
                 .setTooltip(Component.translatable("gui.spectatorplus.config.client.openScreens.tooltip"))
                 .setSaveConsumer(val -> config.openScreens = val)
                 .build());
+
+        category.addEntry(entryBuilder.startBooleanToggle(Component.translatable("gui.spectatorplus.config.client.hideTooltipUntilMouseMove.name"), config.hideTooltipUntilMouseMove)
+                .setTooltip(Component.translatable("gui.spectatorplus.config.client.hideTooltipUntilMouseMove.tooltip"))
+                .setSaveConsumer(val -> config.hideTooltipUntilMouseMove = val)
+                .build());
     }
 
     private static void setupServerConfig(ConfigBuilder builder) {
