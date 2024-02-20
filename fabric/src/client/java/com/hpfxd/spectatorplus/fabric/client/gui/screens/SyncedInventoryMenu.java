@@ -31,7 +31,7 @@ public class SyncedInventoryMenu extends InventoryMenu {
 
     @Override
     protected @NotNull Slot addSlot(Slot slot) {
-        if (slot.container == this.getCraftSlots()) {
+        if (slot.container == this.getCraftSlots() && ClientSyncController.syncData.screen.hasDummySlots) {
             if (!ClientSyncController.syncData.screen.isClientRequested) {
                 final Slot s = super.addSlot(slot);
                 if (slot.index == 4) {

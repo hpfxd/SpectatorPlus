@@ -47,6 +47,7 @@ public class ScreenSyncController {
         isPendingOpen = true;
         syncData.screen.isSurvivalInventory = packet.isSurvivalInventory();
         syncData.screen.isClientRequested = packet.isClientRequested();
+        syncData.screen.hasDummySlots = packet.hasDummySlots();
     }
 
     private static void handle(ClientboundInventorySyncPacket packet, LocalPlayer player, PacketSender sender) {

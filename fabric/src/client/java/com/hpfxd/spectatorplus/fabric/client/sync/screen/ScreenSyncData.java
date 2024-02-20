@@ -8,6 +8,7 @@ public class ScreenSyncData {
 
     public boolean isSurvivalInventory;
     public boolean isClientRequested;
+    public boolean hasDummySlots;
 
     public ItemStack cursorItem = ItemStack.EMPTY;
     public int cursorItemSlot = -1;

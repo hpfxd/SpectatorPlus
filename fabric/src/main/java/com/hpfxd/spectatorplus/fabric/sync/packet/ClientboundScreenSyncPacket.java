@@ -32,6 +32,10 @@ public record ClientboundScreenSyncPacket(
         return (this.flags >> 1 & 1) == 1;
     }
 
+    public boolean hasDummySlots() {
+        return (this.flags >> 2 & 1) == 1;
+    }
+
     @Override
     public PacketType<?> getType() {
         return TYPE;
