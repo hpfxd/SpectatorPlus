@@ -32,6 +32,7 @@ public abstract class MenuScreensMixin {
     )
     private static <M extends AbstractContainerMenu, S extends Screen & MenuAccess<M>> void spectatorplus$handleSynced(MenuType<M> type, Minecraft mc, int windowId, Component title, CallbackInfo ci, @Local MenuScreens.ScreenConstructor<M, S> screenConstructor) {
         if (ScreenSyncController.isPendingOpen && ClientSyncController.syncData != null && ClientSyncController.syncData.screen != null) {
+            ScreenSyncController.isPendingOpen = false;
             ci.cancel();
 
             if (SpectatorClientMod.config.openScreens || ClientSyncController.syncData.screen.isClientRequested) {
@@ -67,6 +68,7 @@ public abstract class MenuScreensMixin {
 
             // Unable to open, immediately tell the server we've closed this screen.
             mc.getConnection().send(new ServerboundContainerClosePacket(windowId));
+            ClientSyncController.syncData.screen = null;
         }
     }
 }
