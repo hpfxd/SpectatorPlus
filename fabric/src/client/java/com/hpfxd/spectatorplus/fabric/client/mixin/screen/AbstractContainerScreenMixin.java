@@ -1,8 +1,10 @@
 package com.hpfxd.spectatorplus.fabric.client.mixin.screen;
 
+import com.hpfxd.spectatorplus.fabric.client.SpectatorClientMod;
 import com.hpfxd.spectatorplus.fabric.client.gui.screens.ItemMoveAnimation;
 import com.hpfxd.spectatorplus.fabric.client.sync.ClientSyncController;
 import com.hpfxd.spectatorplus.fabric.client.sync.screen.ScreenSyncController;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.util.Mth;
@@ -35,6 +37,13 @@ public abstract class AbstractContainerScreenMixin {
     @Unique
     private int cursorSlot = -1;
 
+    @Unique
+    private int originalMouseX = -1;
+    @Unique
+    private int originalMouseY = -1;
+    @Unique
+    private boolean mouseMoved;
+
     @Shadow protected abstract void renderFloatingItem(GuiGraphics guiGraphics, ItemStack stack, int x, int y, String text);
     @Shadow @Final protected AbstractContainerMenu menu;
     @Shadow @Nullable protected abstract Slot findSlot(double mouseX, double mouseY);
@@ -47,7 +56,7 @@ public abstract class AbstractContainerScreenMixin {
             cancellable = true
     )
     private void spectatorplus$noClickingOnSyncedScreens(Slot slot, int slotId, int mouseButton, ClickType type, CallbackInfo ci) {
-        if ((Object) this == ScreenSyncController.syncedScreen) {
+        if (this.spectatorplus$isSyncedScreen()) {
             ci.cancel();
         }
     }
@@ -62,9 +71,17 @@ public abstract class AbstractContainerScreenMixin {
             )
     )
     private void spectatorplus$renderSyncedCursorItem(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
-        if ((Object) this != ScreenSyncController.syncedScreen) {
-            // this is not a synced screen
+        if (!this.spectatorplus$isSyncedScreen()) {
             return;
+        }
+
+        if (this.originalMouseX == -1 && this.originalMouseY == -1) {
+            this.originalMouseX = mouseX;
+            this.originalMouseY = mouseY;
+        }
+
+        if (mouseX != this.originalMouseX && mouseY != this.originalMouseY) {
+            this.mouseMoved = true;
         }
 
         final ItemStack cursorItem = ClientSyncController.syncData.screen.cursorItem;
@@ -114,11 +131,31 @@ public abstract class AbstractContainerScreenMixin {
             at = @At("TAIL")
     )
     private void spectatorplus$tickCursorItem(CallbackInfo ci) {
-        if ((Object) this != ScreenSyncController.syncedScreen) {
-            // this is not a synced screen
+        if (!this.spectatorplus$isSyncedScreen()) {
             return;
         }
 
-        this.animations.removeIf(animation -> ++animation.tick > MOVE_ANIMATION_TICKS);
+        this.animations.removeIf(animation -> ++animation.tick >= MOVE_ANIMATION_TICKS);
+    }
+
+    @ModifyExpressionValue(
+            method = "renderTooltip(Lnet/minecraft/client/gui/GuiGraphics;II)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/Slot;hasItem()Z")
+    )
+    private boolean spectatorplus$hideTooltipUntilMouseMove(boolean original) {
+        return original && (!this.spectatorplus$isSyncedScreen() || !SpectatorClientMod.config.hideTooltipUntilMouseMove || this.mouseMoved);
+    }
+
+    @ModifyExpressionValue(
+            method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/Slot;isHighlightable()Z", ordinal = 0)
+    )
+    private boolean spectatorplus$hideHoverUntilMoveMouse(boolean original) {
+        return original && (!this.spectatorplus$isSyncedScreen() || !SpectatorClientMod.config.hideTooltipUntilMouseMove || this.mouseMoved);
+    }
+
+    @Unique
+    private boolean spectatorplus$isSyncedScreen() {
+        return (Object) this == ScreenSyncController.syncedScreen;
     }
 }

@@ -9,4 +9,5 @@ public class ClientConfig {
     public boolean highlightSpectators = true;
     public boolean teleportAutoSpectate = false;
     public boolean openScreens = true;
+    public boolean hideTooltipUntilMouseMove = false;
 }

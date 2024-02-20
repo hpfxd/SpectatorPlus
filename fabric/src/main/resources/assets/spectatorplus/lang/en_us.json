@@ -20,6 +20,8 @@
   "gui.spectatorplus.config.client.teleportAutoSpectate.tooltip": "Automatically start spectating players when teleporting\nusing the spectator hotbar menu.",
   "gui.spectatorplus.config.client.openScreens.name": "Open Synced Screens",
   "gui.spectatorplus.config.client.openScreens.tooltip": "Shows the currently open screen the spectated\nplayer is looking at. Manually requested screens\nsuch as the inventory can still be opened.",
+  "gui.spectatorplus.config.client.hideTooltipUntilMouseMove.name": "Hide Tooltip Until Mouse Move",
+  "gui.spectatorplus.config.client.hideTooltipUntilMouseMove.tooltip": "Hides the tooltip for the hovered item in\nsynced screens until the mouse is moved.",
 
   "gui.spectatorplus.config.server.allowTransferBetweenLevels.name": "Transfer between worlds",
   "gui.spectatorplus.config.server.allowTransferBetweenLevels.tooltip": "Whether player's spectators transfer with them when\ntravelling between worlds.",
