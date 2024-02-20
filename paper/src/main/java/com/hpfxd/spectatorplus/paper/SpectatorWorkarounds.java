@@ -64,7 +64,7 @@ public class SpectatorWorkarounds implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onUntrack(PlayerUntrackEntityEvent event) {
-        if (!this.plugin.getServerConfig().workaroundTeleportOnUntrack) {
+        if (!this.plugin.getServerConfig().workaroundTeleportOnUntrack || !event.getPlayer().isConnected()) {
             return;
         }
 
