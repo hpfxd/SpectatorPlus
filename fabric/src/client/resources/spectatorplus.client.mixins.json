@@ -10,7 +10,8 @@
     "LevelRendererAccessor",
     "LevelRendererMixin",
     "LivingEntityMixin",
-    "MinecraftMixin"
+    "MinecraftMixin",
+    "ScreenEffectRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
