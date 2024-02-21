@@ -16,6 +16,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -34,7 +35,7 @@ public abstract class MenuScreensMixin {
         if (ScreenSyncController.isPendingOpen && ClientSyncController.syncData != null && ClientSyncController.syncData.screen != null) {
             ci.cancel();
 
-            if (SpectatorClientMod.config.openScreens || ClientSyncController.syncData.screen.isClientRequested) {
+            if ((SpectatorClientMod.config.openScreens && (!SpectatorClientMod.config.screensNoOverride || spectatorplus$canOverrideCurrentScreen(mc))) || ClientSyncController.syncData.screen.isClientRequested) {
                 final Player spectated = SpecUtil.getCameraPlayer(mc);
                 if (spectated != null) {
                     ScreenSyncController.syncedWindowId = windowId;
@@ -70,5 +71,10 @@ public abstract class MenuScreensMixin {
             ClientSyncController.syncData.screen = null;
             ScreenSyncController.isPendingOpen = false;
         }
+    }
+
+    @Unique
+    private static boolean spectatorplus$canOverrideCurrentScreen(Minecraft mc) {
+        return mc.screen == null || ScreenSyncController.syncedScreen == mc.screen;
     }
 }

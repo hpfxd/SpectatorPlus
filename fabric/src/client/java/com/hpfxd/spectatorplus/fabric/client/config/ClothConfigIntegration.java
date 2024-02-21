@@ -86,6 +86,11 @@ public class ClothConfigIntegration {
                 .setTooltip(Component.translatable("gui.spectatorplus.config.client.hideTooltipUntilMouseMove.tooltip"))
                 .setSaveConsumer(val -> config.hideTooltipUntilMouseMove = val)
                 .build());
+
+        category.addEntry(entryBuilder.startBooleanToggle(Component.translatable("gui.spectatorplus.config.client.screensNoOverride.name"), config.screensNoOverride)
+                .setTooltip(Component.translatable("gui.spectatorplus.config.client.screensNoOverride.tooltip"))
+                .setSaveConsumer(val -> config.screensNoOverride = val)
+                .build());
     }
 
     private static void setupServerConfig(ConfigBuilder builder) {
