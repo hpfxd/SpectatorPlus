@@ -61,20 +61,12 @@ public abstract class GuiMixin {
 
     @Redirect(method = "render(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getTicksFrozen()I"))
     private int spectatorplus$renderFreezeOverlay(LocalPlayer instance) {
-        final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
-        if (spectated != null) {
-            return spectated.getTicksFrozen();
-        }
-        return instance.getTicksFrozen();
+        return this.minecraft.getCameraEntity().getTicksFrozen();
     }
 
     @Redirect(method = "render(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getPercentFrozen()F"))
     private float spectatorplus$renderFreezeOverlayPercent(LocalPlayer instance) {
-        final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
-        if (spectated != null) {
-            return spectated.getPercentFrozen();
-        }
-        return instance.getPercentFrozen();
+        return this.minecraft.getCameraEntity().getPercentFrozen();
     }
 
     @Inject(method = "render(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/spectator/SpectatorGui;renderHotbar(Lnet/minecraft/client/gui/GuiGraphics;)V"))
