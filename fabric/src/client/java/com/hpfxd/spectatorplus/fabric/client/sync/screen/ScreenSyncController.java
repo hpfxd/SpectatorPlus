@@ -24,7 +24,7 @@ import static com.hpfxd.spectatorplus.fabric.client.sync.ClientSyncController.sy
 public class ScreenSyncController {
     public static boolean isPendingOpen = false;
 
-    public static int syncedWindowId = -1;
+    public static int syncedWindowId = Integer.MIN_VALUE;
     public static Inventory syncedInventory;
     public static Screen syncedScreen;
 
@@ -95,6 +95,7 @@ public class ScreenSyncController {
     }
 
     public static <S extends Screen & MenuAccess<?>> void handleNewSyncedScreen(Minecraft mc, S screen) {
+        isPendingOpen = false;
         mc.player.containerMenu = screen.getMenu();
         mc.setScreen(screen);
 
@@ -109,7 +110,7 @@ public class ScreenSyncController {
         ScreenEvents.remove(screen).register(s -> {
             syncedScreen = null;
             syncedInventory = null;
-            syncedWindowId = -1;
+            syncedWindowId = Integer.MIN_VALUE;
             syncData.screen = null;
         });
     }
