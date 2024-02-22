@@ -1,14 +1,8 @@
 plugins {
     id("fabric-loom") version "1.5-SNAPSHOT"
-    id("java")
+    id("spectatorplus.platform")
 }
 
-val modVersion = property("version")!!
-val minecraftVersion = property("minecraft_version")
-val semverVersion = "$modVersion+mc$minecraftVersion"
-
-group = property("group")!!
-version = "mc$minecraftVersion-$modVersion"
 description = "A Fabric mod that improves spectator mode by showing the hotbar, health, and held item of the spectated player"
 
 repositories {
@@ -32,7 +26,7 @@ loom {
 }
 
 dependencies {
-    minecraft("com.mojang:minecraft:$minecraftVersion")
+    minecraft("com.mojang:minecraft:${property("minecraft_version")}")
     modImplementation("net.fabricmc:fabric-loader:${property("loader_version")}")
     mappings(loom.layered {
         officialMojangMappings()
@@ -56,7 +50,7 @@ tasks {
         filesMatching("fabric.mod.json") {
             expand(
                 mapOf(
-                    "version" to semverVersion,
+                    "version" to project.version,
                     "description" to project.description,
                 )
             )
@@ -66,5 +60,8 @@ tasks {
     jar {
         from("../LICENSE")
     }
-}
 
+    remapJar {
+        archiveVersion = getByName<Jar>("jar").archiveVersion
+    }
+}

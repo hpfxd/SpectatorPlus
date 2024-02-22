@@ -12,6 +12,7 @@ plugins {
 
 rootProject.name = "spectatorplus"
 
+includeBuild("build-logic")
 this.setupSubproject("paper")
 this.setupSubproject("fabric")
 

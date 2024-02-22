@@ -1,11 +1,9 @@
 plugins {
-    id("java")
+    id("spectatorplus.platform")
     id("com.github.johnrengelman.shadow") version "8.1.1"
 }
 
-group = property("group")!!
-version = property("version")!!
-description = "Server-side component for the SpectatorPlus mod"
+description = "Paper server-side companion for the SpectatorPlus mod"
 
 repositories {
     mavenCentral()
@@ -20,6 +18,7 @@ dependencies {
 
 tasks {
     processResources {
+        inputs.property("version", project.version)
         filesMatching("paper-plugin.yml") {
             expand(
                 mapOf(
@@ -31,6 +30,7 @@ tasks {
     }
 
     shadowJar {
+        archiveVersion = getByName<Jar>("jar").archiveVersion
         archiveClassifier.set("")
         from("../LICENSE")
 
