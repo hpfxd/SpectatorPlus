@@ -5,4 +5,5 @@ public class ClientConfig {
     public boolean renderStatusIfNoHotbar = true;
     public boolean renderHotbar = true;
     public boolean renderArms = true;
+    public boolean showSpectators = true;
 }

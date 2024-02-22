@@ -61,6 +61,11 @@ public class ClothConfigIntegration {
                 .setTooltip(Component.translatable("gui.spectatorplus.config.client.renderArms.tooltip"))
                 .setSaveConsumer(val -> config.renderArms = val)
                 .build());
+
+        category.addEntry(entryBuilder.startBooleanToggle(Component.translatable("gui.spectatorplus.config.client.showSpectators.name"), config.showSpectators)
+                .setTooltip(Component.translatable("gui.spectatorplus.config.client.showSpectators.tooltip"))
+                .setSaveConsumer(val -> config.showSpectators = val)
+                .build());
     }
 
     private static void setupServerConfig(ConfigBuilder builder) {
