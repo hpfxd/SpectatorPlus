@@ -14,6 +14,8 @@
   "gui.spectatorplus.config.client.renderArms.tooltip": "Renders the arms and held item of the spectated player.",
   "gui.spectatorplus.config.client.showSpectators.name": "Show Spectators",
   "gui.spectatorplus.config.client.showSpectators.tooltip": "Whether other players in spectator mode should be visible",
+  "gui.spectatorplus.config.client.highlightSpectators.name": "Highlight Spectators",
+  "gui.spectatorplus.config.client.highlightSpectators.tooltip": "Whether other players in spectator mode should\nbe highlighted when using the Vanilla\n\"%s\" keybind.",
 
   "gui.spectatorplus.config.server.allowTransferBetweenLevels.name": "Transfer between worlds",
   "gui.spectatorplus.config.server.allowTransferBetweenLevels.tooltip": "Whether player's spectators transfer with them when\ntravelling between worlds.",

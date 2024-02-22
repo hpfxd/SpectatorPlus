@@ -6,4 +6,5 @@ public class ClientConfig {
     public boolean renderHotbar = true;
     public boolean renderArms = true;
     public boolean showSpectators = true;
+    public boolean highlightSpectators = true;
 }
