@@ -5,6 +5,7 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.inventory.ResultSlot;
 import net.minecraft.world.inventory.Slot;
 import org.jetbrains.annotations.NotNull;
 
@@ -31,7 +32,7 @@ public class SyncedInventoryMenu extends InventoryMenu {
 
     @Override
     protected @NotNull Slot addSlot(Slot slot) {
-        if (slot.container == this.getCraftSlots() && ClientSyncController.syncData.screen.hasDummySlots) {
+        if (ClientSyncController.syncData.screen.hasDummySlots && (slot instanceof ResultSlot || slot.container == this.getCraftSlots())) {
             if (!ClientSyncController.syncData.screen.isClientRequested) {
                 final Slot s = super.addSlot(slot);
                 if (slot.index == 4) {
