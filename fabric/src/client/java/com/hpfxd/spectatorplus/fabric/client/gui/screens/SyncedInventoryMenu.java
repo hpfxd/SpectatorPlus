@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class SyncedInventoryMenu extends InventoryMenu {
     private static final Container DUMMY_CONTAINER_NO_CRAFTING = new DummyContainer(9);
-    private static final Container DUMMY_CONTAINER_CRAFTING = new DummyContainer(4);
+    private static final Container DUMMY_CONTAINER_CRAFTING = new DummyContainer(5);
 
     private final Player owner;
     private final Inventory inventory;
