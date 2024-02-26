@@ -10,5 +10,5 @@ public class ClientConfig {
     public boolean teleportAutoSpectate = false;
     public boolean openScreens = true;
     public boolean hideTooltipUntilMouseMove = false;
-    public boolean screensNoOverride = true;
+    public boolean screensNoOverride = false;
 }
