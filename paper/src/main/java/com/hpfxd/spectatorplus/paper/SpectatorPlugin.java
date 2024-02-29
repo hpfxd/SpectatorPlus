@@ -11,7 +11,6 @@ public class SpectatorPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
         this.saveDefaultConfig();
-        this.reloadConfig();
         this.serverConfig = new ServerConfig(this.getConfig());
 
         this.syncController = new ServerSyncController(this);
