@@ -16,6 +16,8 @@
   "gui.spectatorplus.config.client.showSpectators.tooltip": "Whether other players in spectator mode should be visible",
   "gui.spectatorplus.config.client.highlightSpectators.name": "Highlight Spectators",
   "gui.spectatorplus.config.client.highlightSpectators.tooltip": "Whether other players in spectator mode should\nbe highlighted when using the Vanilla\n\"%s\" keybind.",
+  "gui.spectatorplus.config.client.teleportAutoSpectate.name": "Spectate when teleporting",
+  "gui.spectatorplus.config.client.teleportAutoSpectate.tooltip": "Automatically start spectating players when teleporting\nusing the spectator hotbar menu.",
 
   "gui.spectatorplus.config.server.allowTransferBetweenLevels.name": "Transfer between worlds",
   "gui.spectatorplus.config.server.allowTransferBetweenLevels.tooltip": "Whether player's spectators transfer with them when\ntravelling between worlds.",

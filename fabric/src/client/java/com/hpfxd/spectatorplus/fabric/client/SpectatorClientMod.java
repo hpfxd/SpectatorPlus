@@ -19,7 +19,9 @@ public class SpectatorClientMod implements ClientModInitializer {
         } catch (IOException e) {
             throw new RuntimeException("Failed to load server config", e);
         }
+
         ClientSyncController.init();
+        ClientTargetController.init();
     }
 
     private void loadConfig() throws IOException {

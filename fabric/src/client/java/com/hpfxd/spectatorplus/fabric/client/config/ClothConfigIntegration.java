@@ -71,6 +71,11 @@ public class ClothConfigIntegration {
                 .setTooltip(Component.translatable("gui.spectatorplus.config.client.highlightSpectators.tooltip", Component.translatable("key.spectatorOutlines")))
                 .setSaveConsumer(val -> config.highlightSpectators = val)
                 .build());
+
+        category.addEntry(entryBuilder.startBooleanToggle(Component.translatable("gui.spectatorplus.config.client.teleportAutoSpectate.name"), config.teleportAutoSpectate)
+                .setTooltip(Component.translatable("gui.spectatorplus.config.client.teleportAutoSpectate.tooltip"))
+                .setSaveConsumer(val -> config.teleportAutoSpectate = val)
+                .build());
     }
 
     private static void setupServerConfig(ConfigBuilder builder) {

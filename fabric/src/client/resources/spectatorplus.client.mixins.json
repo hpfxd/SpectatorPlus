@@ -3,6 +3,7 @@
   "package": "com.hpfxd.spectatorplus.fabric.client.mixin",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "ClientLevelAccessor",
     "GameRendererMixin",
     "GuiMixin",
     "ItemInHandRendererAccessor",
@@ -11,6 +12,7 @@
     "LevelRendererMixin",
     "LivingEntityMixin",
     "MinecraftMixin",
+    "PlayerMenuItemMixin",
     "ScreenEffectRendererMixin"
   ],
   "injectors": {
