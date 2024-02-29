@@ -10,8 +10,10 @@ public class SpectatorPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        if(!this.getDataFolder().exists() && !this.getDataFolder().mkdirs()) {
+            this.getLogger().warning("Could not create config folder. Check read/write permissions.");
+        }
         this.saveDefaultConfig();
-        this.reloadConfig();
         this.serverConfig = new ServerConfig(this.getConfig());
 
         this.syncController = new ServerSyncController(this);
