@@ -8,17 +8,17 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;
 
-public record ClientboundHotbarSyncPacket(
+public record ClientboundInventorySyncPacket(
         UUID playerId,
-        ItemStack[] items
+        ItemStack[] inventoryItems
 ) implements ClientboundSyncPacket {
-    public static final int ITEMS_LENGTH = 9;
-    public static final NamespacedKey ID = new NamespacedKey("spectatorplus", "hotbar_sync");
+    public static final int ITEMS_LENGTH = 4 * 9;
+    public static final NamespacedKey ID = new NamespacedKey("spectatorplus", "inventory_sync");
 
     @Override
     public void write(ByteArrayDataOutput buf) {
         SerializationUtil.writeUuid(buf, this.playerId);
-        SerializationUtil.writeItems(buf, this.items);
+        SerializationUtil.writeItems(buf, this.inventoryItems);
     }
 
     @Override

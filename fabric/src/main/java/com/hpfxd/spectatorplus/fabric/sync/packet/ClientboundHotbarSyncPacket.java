@@ -21,6 +21,7 @@ public record ClientboundHotbarSyncPacket(
         UUID playerId,
         ItemStack[] items
 ) implements ClientboundSyncPacket {
+    public static final int ITEMS_LENGTH = 9;
     public static final PacketType<ClientboundHotbarSyncPacket> TYPE = PacketType.create(new ResourceLocation("spectatorplus", "hotbar_sync"), ClientboundHotbarSyncPacket::new);
     static final String PERMISSION = "spectatorplus.sync.hotbar";
 
@@ -38,14 +39,19 @@ public record ClientboundHotbarSyncPacket(
         this(buf.readUUID(), readItems(buf));
     }
 
-    private static ItemStack[] readItems(FriendlyByteBuf buf) {
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeUUID(this.playerId);
+        writeItems(buf, this.items);
+    }
+
+    public static ItemStack[] readItems(FriendlyByteBuf buf) {
         final int len = buf.readInt();
         final ItemStack[] items = new ItemStack[len];
 
         for (int slot = 0; slot < len; slot++) {
             if (buf.readBoolean()) {
-                final int length = buf.readInt();
-                final ItemStack stack = length > 0 ? readItem(buf, length) : ItemStack.EMPTY;
+                final ItemStack stack = readItem(buf);
 
                 items[slot] = stack;
             }
@@ -54,27 +60,24 @@ public record ClientboundHotbarSyncPacket(
         return items;
     }
 
-    @Override
-    public void write(FriendlyByteBuf buf) {
-        buf.writeUUID(this.playerId);
-        buf.writeInt(this.items.length);
+    public static void writeItems(FriendlyByteBuf buf, ItemStack[] items) {
+        buf.writeInt(items.length);
 
-        for (final ItemStack item : this.items) {
+        for (final ItemStack item : items) {
             buf.writeBoolean(item != null);
 
             if (item != null) {
-                if (item.isEmpty()) {
-                    buf.writeInt(0);
-                } else {
-                    final byte[] itemData = writeItem(item);
-                    buf.writeInt(itemData.length);
-                    buf.writeBytes(itemData);
-                }
+                writeItem(buf, item);
             }
         }
     }
 
-    private static ItemStack readItem(FriendlyByteBuf buf, int len) {
+    public static ItemStack readItem(FriendlyByteBuf buf) {
+        final int len = buf.readInt();
+        if (len == 0) {
+            return ItemStack.EMPTY;
+        }
+
         try {
             final byte[] in = new byte[len];
             buf.readBytes(in);
@@ -86,7 +89,13 @@ public record ClientboundHotbarSyncPacket(
         }
     }
 
-    private static byte[] writeItem(ItemStack item) {
+    public static void writeItem(FriendlyByteBuf buf, ItemStack item) {
+        if (item.isEmpty()) {
+            buf.writeInt(0);
+            return;
+        }
+
+        final byte[] bytes;
         try {
             final CompoundTag tag = new CompoundTag();
             item.save(tag);
@@ -94,10 +103,13 @@ public record ClientboundHotbarSyncPacket(
             final ByteArrayOutputStream out = new ByteArrayOutputStream();
             NbtIo.writeCompressed(tag, out);
 
-            return out.toByteArray();
+            bytes = out.toByteArray();
         } catch (IOException e) {
             throw new EncoderException(e);
         }
+
+        buf.writeInt(bytes.length);
+        buf.writeBytes(bytes);
     }
 
     @Override

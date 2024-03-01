@@ -18,9 +18,17 @@
   "gui.spectatorplus.config.client.highlightSpectators.tooltip": "Whether other players in spectator mode should\nbe highlighted when using the Vanilla\n\"%s\" keybind.",
   "gui.spectatorplus.config.client.teleportAutoSpectate.name": "Spectate when teleporting",
   "gui.spectatorplus.config.client.teleportAutoSpectate.tooltip": "Automatically start spectating players when teleporting\nusing the spectator hotbar menu.",
+  "gui.spectatorplus.config.client.openScreens.name": "Open Synced Screens",
+  "gui.spectatorplus.config.client.openScreens.tooltip": "Shows the currently open screen the spectated\nplayer is looking at. Manually requested screens\nsuch as the inventory can still be opened.",
+  "gui.spectatorplus.config.client.hideTooltipUntilMouseMove.name": "Hide Tooltip Until Mouse Move",
+  "gui.spectatorplus.config.client.hideTooltipUntilMouseMove.tooltip": "Hides the tooltip for the hovered item in\nsynced screens until the mouse is moved.",
+  "gui.spectatorplus.config.client.screensNoOverride.name": "Don't Override Current Screen",
+  "gui.spectatorplus.config.client.screensNoOverride.tooltip": "Prevents opening a synced screen if another\nscreen is currently open (such as chat or\nthe pause menu)",
 
   "gui.spectatorplus.config.server.allowTransferBetweenLevels.name": "Transfer between worlds",
   "gui.spectatorplus.config.server.allowTransferBetweenLevels.tooltip": "Whether player's spectators transfer with them when\ntravelling between worlds.",
   "gui.spectatorplus.config.server.autoUpdatePosition.name": "Auto-teleport spectators",
-  "gui.spectatorplus.config.server.autoUpdatePosition.tooltip": "Automatically teleports spectators' bodies to their target's position\nevery second. This is a workaround to mitigate %s."
+  "gui.spectatorplus.config.server.autoUpdatePosition.tooltip": "Automatically teleports spectators' bodies to their target's position\nevery second. This is a workaround to mitigate %s.",
+
+  "spectatorplus.no-inventory-permission": "You don't have permission to open the inventory of other players on this server"
 }

@@ -76,6 +76,21 @@ public class ClothConfigIntegration {
                 .setTooltip(Component.translatable("gui.spectatorplus.config.client.teleportAutoSpectate.tooltip"))
                 .setSaveConsumer(val -> config.teleportAutoSpectate = val)
                 .build());
+
+        category.addEntry(entryBuilder.startBooleanToggle(Component.translatable("gui.spectatorplus.config.client.openScreens.name"), config.openScreens)
+                .setTooltip(Component.translatable("gui.spectatorplus.config.client.openScreens.tooltip"))
+                .setSaveConsumer(val -> config.openScreens = val)
+                .build());
+
+        category.addEntry(entryBuilder.startBooleanToggle(Component.translatable("gui.spectatorplus.config.client.hideTooltipUntilMouseMove.name"), config.hideTooltipUntilMouseMove)
+                .setTooltip(Component.translatable("gui.spectatorplus.config.client.hideTooltipUntilMouseMove.tooltip"))
+                .setSaveConsumer(val -> config.hideTooltipUntilMouseMove = val)
+                .build());
+
+        category.addEntry(entryBuilder.startBooleanToggle(Component.translatable("gui.spectatorplus.config.client.screensNoOverride.name"), config.screensNoOverride)
+                .setTooltip(Component.translatable("gui.spectatorplus.config.client.screensNoOverride.tooltip"))
+                .setSaveConsumer(val -> config.screensNoOverride = val)
+                .build());
     }
 
     private static void setupServerConfig(ConfigBuilder builder) {

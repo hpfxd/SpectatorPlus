@@ -7,9 +7,13 @@ public class ServerConfig {
     public final boolean workaroundTeleportOnUntrack;
     public final boolean workaroundsAllowFallback;
 
+    public final boolean screensRequireClientMod;
+
     public ServerConfig(ConfigurationSection config) {
         this.workaroundTeleportTicker = config.getBoolean("workarounds.auto-update-position");
         this.workaroundTeleportOnUntrack = config.getBoolean("workarounds.auto-teleport-on-untrack");
         this.workaroundsAllowFallback = config.getBoolean("workarounds.allow-fallback");
+
+        this.screensRequireClientMod = config.getBoolean("screens.require-client-mod");
     }
 }

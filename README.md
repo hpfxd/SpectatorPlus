@@ -11,6 +11,10 @@ with spectator mode.
 
 - Show the held item and health of the spectated player
 - Show the hotbar, health, food, and experience of the spectated player *(Server-side required)*
+- Show the currently open screen of the spectated player, such as when opening a chest or crafting table *(Server-side required)*
+  - If the spectated player has the client-side mod installed as well, it can also show when they open their inventory
+  - Additionally, when pressing the normal inventory keybind, the spectated player's inventory will be opened
+  - Currently this feature is only supported on servers running Paper
 - Allow continuing to spectate even when the player teleports far away or between worlds *(Server-side required)*
     - This is a fix for [MC-107113](https://bugs.mojang.com/browse/MC-107113)
     - Even works for clients without the mod installed!
@@ -26,8 +30,10 @@ player they are spectating. **By default, all players have access to all informa
 would like to change this, you can use a permissions plugin/mod such as [LuckPerms](https://luckperms.net/). On Fabric,
 SpectatorPlus uses [fabric-permissions-api](https://github.com/lucko/fabric-permissions-api/) to check permissions.
 
-| Permission                      | Description                                                                             |
-|---------------------------------|-----------------------------------------------------------------------------------------|
-| `spectatorplus.sync.experience` | Allows the player to receive the experience value of the spectated target               |
-| `spectatorplus.sync.food`       | Allows the player to receive the food value of the spectated target                     |
-| `spectatorplus.sync.hotbar`     | Allows the player to receive the hotbar items and selected slot of the spectated target |
+| Permission                      | Description                                                                                   |
+|---------------------------------|-----------------------------------------------------------------------------------------------|
+| `spectatorplus.sync.experience` | Allows the player to receive the experience value of the spectated target                     |
+| `spectatorplus.sync.food`       | Allows the player to receive the food value of the spectated target                           |
+| `spectatorplus.sync.hotbar`     | Allows the player to receive the hotbar items and selected slot of the spectated target       |
+| `spectatorplus.sync.inventory`  | Allows the player to receive the full inventory of the spectated target when a screen is open |
+| `spectatorplus.sync.screen`     | Allows the player to receive the open screen of the spectated target (e.g. a chest)           |

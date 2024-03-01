@@ -13,7 +13,13 @@
     "LivingEntityMixin",
     "MinecraftMixin",
     "PlayerMenuItemMixin",
-    "ScreenEffectRendererMixin"
+    "ScreenEffectRendererMixin",
+    "screen.AbstractContainerMenuMixin",
+    "screen.AbstractContainerScreenMixin",
+    "screen.ImageButtonAccessor",
+    "screen.InventoryMenuMixin",
+    "screen.InventoryScreenMixin",
+    "screen.MenuScreensMixin"
   ],
   "injectors": {
     "defaultRequire": 1

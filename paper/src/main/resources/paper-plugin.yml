@@ -18,3 +18,9 @@ permissions:
   spectatorplus.sync.hotbar:
     description: "Allows the player to receive the hotbar items and selected slot of the spectated target"
     default: true
+  spectatorplus.sync.inventory:
+    description: "Allows the player to receive the full inventory of the spectated target when a screen is open"
+    default: true
+  spectatorplus.sync.screen:
+    description: "Allows the player to receive the open screen of the spectated target (e.g. a chest)"
+    default: true
