@@ -7,6 +7,7 @@ public class ClientConfig {
     public boolean renderArms = true;
     public boolean showSpectators = true;
     public boolean highlightSpectators = true;
+    public boolean showInvisibleEntities = true;
     public boolean teleportAutoSpectate = false;
     public boolean openScreens = true;
     public boolean hideTooltipUntilMouseMove = false;
