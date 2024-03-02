@@ -6,6 +6,7 @@
     "ClientLevelAccessor",
     "ClientLevelMixin",
     "EntityMixin",
+    "GameRendererAccessor",
     "GameRendererMixin",
     "GuiMixin",
     "ItemInHandRendererAccessor",
