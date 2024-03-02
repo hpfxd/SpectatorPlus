@@ -40,7 +40,7 @@ public class ScreenSyncController {
         ClientPlayNetworking.registerGlobalReceiver(ClientboundScreenCursorSyncPacket.TYPE, ScreenSyncController::handle);
     }
 
-    private static void handle(ClientboundScreenSyncPacket packet, LocalPlayer player, PacketSender sender) {
+    private static void handle(ClientboundScreenSyncPacket packet, ClientPlayNetworking.Context context) {
         setSyncData(packet.playerId());
         syncData.setScreen();
 
@@ -50,7 +50,7 @@ public class ScreenSyncController {
         syncData.screen.hasDummySlots = packet.hasDummySlots();
     }
 
-    private static void handle(ClientboundInventorySyncPacket packet, LocalPlayer player, PacketSender sender) {
+    private static void handle(ClientboundInventorySyncPacket packet, ClientPlayNetworking.Context context) {
         setSyncData(packet.playerId());
         syncData.setScreen();
 
@@ -72,7 +72,7 @@ public class ScreenSyncController {
         }
     }
 
-    private static void handle(ClientboundScreenCursorSyncPacket packet, LocalPlayer player, PacketSender sender) {
+    private static void handle(ClientboundScreenCursorSyncPacket packet, ClientPlayNetworking.Context context) {
         setSyncData(packet.playerId());
         syncData.setScreen();
 
