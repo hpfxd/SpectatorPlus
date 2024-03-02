@@ -30,6 +30,6 @@ public class ServerSyncController {
     }
 
     private static Collection<ServerPlayer> getSpectators(Entity target) {
-        return ((ServerLevel) target.level()).getPlayers(spectator -> target.equals(spectator.getCamera()));
+        return ((ServerLevel) target.level()).getPlayers(spectator -> target != spectator && target.equals(spectator.getCamera()));
     }
 }
