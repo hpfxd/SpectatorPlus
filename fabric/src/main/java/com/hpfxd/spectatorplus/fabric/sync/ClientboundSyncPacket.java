@@ -1,11 +1,11 @@
 package com.hpfxd.spectatorplus.fabric.sync;
 
-import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.util.UUID;
 
-public interface ClientboundSyncPacket extends FabricPacket {
+public interface ClientboundSyncPacket extends CustomPacketPayload {
     UUID playerId();
 
     boolean canSend(ServerPlayer receiver);

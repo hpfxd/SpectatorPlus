@@ -2,10 +2,11 @@ package com.hpfxd.spectatorplus.fabric.sync.packet;
 
 import com.hpfxd.spectatorplus.fabric.sync.ClientboundSyncPacket;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -15,7 +16,8 @@ public record ClientboundExperienceSyncPacket(
         int neededForNextLevel,
         int level
 ) implements ClientboundSyncPacket {
-    public static final PacketType<ClientboundExperienceSyncPacket> TYPE = PacketType.create(new ResourceLocation("spectatorplus", "experience_sync"), ClientboundExperienceSyncPacket::new);
+    public static final StreamCodec<FriendlyByteBuf, ClientboundExperienceSyncPacket> STREAM_CODEC = CustomPacketPayload.codec(ClientboundExperienceSyncPacket::write, ClientboundExperienceSyncPacket::new);
+    public static final CustomPacketPayload.Type<ClientboundExperienceSyncPacket> TYPE = CustomPacketPayload.createType("spectatorplus:experience_sync");
     private static final String PERMISSION = "spectatorplus.sync.experience";
 
     public static ClientboundExperienceSyncPacket initializing(ServerPlayer target) {
@@ -26,7 +28,6 @@ public record ClientboundExperienceSyncPacket(
         this(buf.readUUID(), buf.readFloat(), buf.readInt(), buf.readInt());
     }
 
-    @Override
     public void write(FriendlyByteBuf buf) {
         buf.writeUUID(this.playerId);
         buf.writeFloat(this.progress);
@@ -35,7 +36,7 @@ public record ClientboundExperienceSyncPacket(
     }
 
     @Override
-    public PacketType<?> getType() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 

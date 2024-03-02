@@ -1,28 +1,29 @@
 package com.hpfxd.spectatorplus.fabric.sync.packet;
 
 import com.hpfxd.spectatorplus.fabric.sync.ServerboundSyncPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
 public record ServerboundRequestInventoryOpenPacket(
         UUID playerId
 ) implements ServerboundSyncPacket {
-    public static final PacketType<ServerboundRequestInventoryOpenPacket> TYPE = PacketType.create(new ResourceLocation("spectatorplus", "request_inventory_open"), ServerboundRequestInventoryOpenPacket::new);
+    public static final StreamCodec<FriendlyByteBuf, ServerboundRequestInventoryOpenPacket> STREAM_CODEC = CustomPacketPayload.codec(ServerboundRequestInventoryOpenPacket::write, ServerboundRequestInventoryOpenPacket::new);
+    public static final CustomPacketPayload.Type<ServerboundRequestInventoryOpenPacket> TYPE = CustomPacketPayload.createType("spectatorplus:request_inventory_open");
 
     public ServerboundRequestInventoryOpenPacket(FriendlyByteBuf buf) {
         this(buf.readUUID());
     }
 
-    @Override
     public void write(FriendlyByteBuf buf) {
         buf.writeUUID(this.playerId);
     }
 
     @Override
-    public PacketType<?> getType() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }
