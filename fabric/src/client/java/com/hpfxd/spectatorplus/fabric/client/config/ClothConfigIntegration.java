@@ -72,6 +72,11 @@ public class ClothConfigIntegration {
                 .setSaveConsumer(val -> config.highlightSpectators = val)
                 .build());
 
+        category.addEntry(entryBuilder.startBooleanToggle(Component.translatable("gui.spectatorplus.config.client.showInvisibleEntities.name"), config.showInvisibleEntities)
+                .setTooltip(Component.translatable("gui.spectatorplus.config.client.showInvisibleEntities.tooltip"))
+                .setSaveConsumer(val -> config.showInvisibleEntities = val)
+                .build());
+
         category.addEntry(entryBuilder.startBooleanToggle(Component.translatable("gui.spectatorplus.config.client.teleportAutoSpectate.name"), config.teleportAutoSpectate)
                 .setTooltip(Component.translatable("gui.spectatorplus.config.client.teleportAutoSpectate.tooltip"))
                 .setSaveConsumer(val -> config.teleportAutoSpectate = val)
