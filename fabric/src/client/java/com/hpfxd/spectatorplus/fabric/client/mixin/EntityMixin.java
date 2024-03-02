@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 public class EntityMixin {
     @ModifyExpressionValue(method = "isInvisibleTo(Lnet/minecraft/world/entity/player/Player;)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;isSpectator()Z"))
     private boolean spectatorplus$configShowInvisibleEntities(boolean original, @Local(argsOnly = true) Player player) {
-        if (player instanceof LocalPlayer && !SpectatorClientMod.config.showInvisibleEntities) {
+        if (player instanceof LocalPlayer && !SpectatorClientMod.config.showInvisibleEntities && !((Entity) (Object) this).isSpectator()) {
             return false;
         }
 
