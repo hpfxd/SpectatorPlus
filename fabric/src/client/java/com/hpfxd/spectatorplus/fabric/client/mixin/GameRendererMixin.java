@@ -169,7 +169,7 @@ public abstract class GameRendererMixin {
         return cameraPlayer == this.minecraft.player ? original : this.bobO;
     }
 
-    @ModifyExpressionValue(method = "pick(F)V", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/client/player/LocalPlayer;blockInteractionRange()D"))
+    @ModifyExpressionValue(method = "pick(F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;blockInteractionRange()D"))
     private double spectatorplus$modifyBlockInteractionRange(double original) {
         final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
         if (spectated != null) {
@@ -179,7 +179,7 @@ public abstract class GameRendererMixin {
         return original;
     }
 
-    @ModifyExpressionValue(method = "pick(F)V", at = @At(value = "INVOKE_ASSIGN", target = "Lnet/minecraft/client/player/LocalPlayer;entityInteractionRange()D"))
+    @ModifyExpressionValue(method = "pick(F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;entityInteractionRange()D"))
     private double spectatorplus$modifyEntityInteractionRange(double original) {
         final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
         if (spectated != null) {
