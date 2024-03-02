@@ -96,8 +96,8 @@ public abstract class GuiMixin {
     }
 
     @Redirect(method = "isExperienceBarVisible()Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;hasExperience()Z"))
-    private boolean spectatorplus$renderExperience(MultiPlayerGameMode instance, @Share("spectated") LocalRef<AbstractClientPlayer> spectatedRef) {
-        final AbstractClientPlayer spectated = spectatedRef.get();
+    private boolean spectatorplus$renderExperience(MultiPlayerGameMode instance) {
+        final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
         if (spectated != null) {
             return !spectated.isCreative() && !spectated.isSpectator() && ClientSyncController.syncData != null && ClientSyncController.syncData.experienceLevel != -1 && this.spectatorplus$isStatusEnabled();
         }
@@ -168,7 +168,7 @@ public abstract class GuiMixin {
     }
 
     @Redirect(method = "renderItemHotbar(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/player/Inventory;selected:I", opcode = Opcodes.GETFIELD))
-    private int spectatorplus$showSyncedItems(Inventory inventory) {
+    private int spectatorplus$showSyncedSelectedSlot(Inventory inventory) {
         if (ClientSyncController.syncData != null && ClientSyncController.syncData.selectedHotbarSlot != -1 && SpecUtil.getCameraPlayer(this.minecraft) != null) {
             return ClientSyncController.syncData.selectedHotbarSlot;
         }
@@ -184,7 +184,7 @@ public abstract class GuiMixin {
     }
 
     @ModifyReceiver(method = "renderItemHotbar(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/NonNullList;get(I)Ljava/lang/Object;", ordinal = 0))
-    private NonNullList<ItemStack> spectatorplus$showSyncedSelectedSlot(NonNullList<ItemStack> instance, int i) {
+    private NonNullList<ItemStack> spectatorplus$showSyncedItems(NonNullList<ItemStack> instance, int i) {
         if (ClientSyncController.syncData != null && ClientSyncController.syncData.selectedHotbarSlot != -1 && SpecUtil.getCameraPlayer(this.minecraft) != null) {
             return ClientSyncController.syncData.hotbarItems;
         }
