@@ -118,19 +118,8 @@ public abstract class ItemInHandRendererMixin {
         instance.renderLeftHand(poseStack, buffer, combinedLight, (AbstractClientPlayer) this.minecraft.cameraEntity);
     }
 
-    @Redirect(
-            method = "renderOneHandedMap(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IFLnet/minecraft/world/entity/HumanoidArm;FLnet/minecraft/world/item/ItemStack;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isInvisible()Z")
-    )
-    private boolean spectatorplus$mapOneHandCameraIsInvisible(LocalPlayer instance) {
-        return this.minecraft.cameraEntity.isInvisible();
-    }
-
-    @Redirect(
-            method = "renderTwoHandedMap(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IFFF)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isInvisible()Z")
-    )
-    private boolean spectatorplus$mapTwoHandCameraIsInvisible(LocalPlayer instance) {
+    @Redirect(method = "*", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isInvisible()Z"))
+    private boolean spectatorplus$spectatedInvisibility(LocalPlayer instance) {
         return this.minecraft.cameraEntity.isInvisible();
     }
 
