@@ -5,6 +5,7 @@ import com.hpfxd.spectatorplus.fabric.client.SpectatorClientMod;
 import com.hpfxd.spectatorplus.fabric.client.util.SpecUtil;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -32,6 +33,15 @@ public abstract class GameRendererMixin {
     @Shadow @Final private RenderBuffers renderBuffers;
     @Shadow @Final public ItemInHandRenderer itemInHandRenderer;
 
+    @Unique
+    private float xBob;
+    @Unique
+    private float yBob;
+    @Unique
+    private float xBobO;
+    @Unique
+    private float yBobO;
+
     @Inject(method = "renderItemInHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/Camera;F)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"))
     public void spectatorplus$renderItemInHand(PoseStack poseStackIn, Camera activeRenderInfoIn, float partialTicks, CallbackInfo ci) {
         if (SpectatorClientMod.config.renderArms && this.minecraft.player != null && this.minecraft.options.getCameraType().isFirstPerson() && !this.minecraft.options.hideGui) {
@@ -42,6 +52,9 @@ public abstract class GameRendererMixin {
                 float attackAnim = spectated.getAttackAnim(partialTicks);
                 final InteractionHand interactionHand = MoreObjects.firstNonNull(spectated.swingingArm, InteractionHand.MAIN_HAND);
                 float pitch = Mth.lerp(partialTicks, spectated.xRotO, spectated.getXRot());
+
+                poseStackIn.mulPose(Axis.XP.rotationDegrees((spectated.getViewXRot(partialTicks) - Mth.lerp(partialTicks, this.xBobO, this.xBob)) * 0.1F));
+                poseStackIn.mulPose(Axis.YP.rotationDegrees(Mth.degreesDifference(Mth.lerp(partialTicks, this.yBobO, this.yBob), Mth.rotLerp(partialTicks, spectated.yRotO, spectated.getYRot())) * 0.1F));
 
                 final ItemInHandRenderer.HandRenderSelection handRenderSelection = evaluateWhichHandsToRender(spectated);
                 final int packedLightCoords = this.minecraft.getEntityRenderDispatcher().getPackedLightCoords(this.minecraft.player, partialTicks);
@@ -97,6 +110,19 @@ public abstract class GameRendererMixin {
             return ItemInHandRendererAccessor.invokeIsChargedCrossbow(mainHandItem)
                     ? ItemInHandRenderer.HandRenderSelection.RENDER_MAIN_HAND_ONLY
                     : ItemInHandRenderer.HandRenderSelection.RENDER_BOTH_HANDS;
+        }
+    }
+
+    @Inject(method = "tick()V", at = @At("HEAD"))
+    private void spectatorplus$tick(CallbackInfo ci) {
+        final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
+        if (spectated != null) {
+            this.yBobO = this.yBob;
+            this.xBobO = this.xBob;
+            this.xBob += Mth.degreesDifference(this.xBob, spectated.getXRot()) * 0.5F;
+            this.yBob += Mth.degreesDifference(this.yBob, spectated.getYRot()) * 0.5F;
+        } else {
+            this.xBob = this.yBob = this.xBobO = this.yBobO = 0;
         }
     }
 
