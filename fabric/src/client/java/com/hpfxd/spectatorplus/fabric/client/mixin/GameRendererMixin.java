@@ -46,14 +46,16 @@ public abstract class GameRendererMixin {
                 final ItemInHandRenderer.HandRenderSelection handRenderSelection = evaluateWhichHandsToRender(spectated);
                 final int packedLightCoords = this.minecraft.getEntityRenderDispatcher().getPackedLightCoords(this.minecraft.player, partialTicks);
 
+                final ItemInHandRendererAccessor accessor = ((ItemInHandRendererAccessor) this.itemInHandRenderer);
+
                 if (handRenderSelection.renderMainHand) {
                     final float swingProgress = interactionHand == InteractionHand.MAIN_HAND ? attackAnim : 0.0F;
                     final float equippedProgress = 1F - Mth.lerp(partialTicks,
                             ((ItemInHandRendererAccessor) this.itemInHandRenderer).getOMainHandHeight(),
                             ((ItemInHandRendererAccessor) this.itemInHandRenderer).getMainHandHeight());
 
-                    ((ItemInHandRendererAccessor) this.itemInHandRenderer).invokeRenderArmWithItem(spectated, partialTicks,
-                            pitch, InteractionHand.MAIN_HAND, swingProgress, spectated.getMainHandItem(), equippedProgress,
+                    accessor.invokeRenderArmWithItem(spectated, partialTicks,
+                            pitch, InteractionHand.MAIN_HAND, swingProgress, accessor.getMainHandItem(), equippedProgress,
                             poseStackIn, this.renderBuffers.bufferSource(), packedLightCoords);
                 }
 
@@ -63,8 +65,8 @@ public abstract class GameRendererMixin {
                             ((ItemInHandRendererAccessor) this.itemInHandRenderer).getOOffHandHeight(),
                             ((ItemInHandRendererAccessor) this.itemInHandRenderer).getOffHandHeight());
 
-                    ((ItemInHandRendererAccessor) this.itemInHandRenderer).invokeRenderArmWithItem(spectated, partialTicks,
-                            pitch, InteractionHand.OFF_HAND, swingProgress, spectated.getOffhandItem(), equippedProgress,
+                    accessor.invokeRenderArmWithItem(spectated, partialTicks,
+                            pitch, InteractionHand.OFF_HAND, swingProgress, accessor.getOffHandItem(), equippedProgress,
                             poseStackIn, this.renderBuffers.bufferSource(), packedLightCoords);
                 }
 

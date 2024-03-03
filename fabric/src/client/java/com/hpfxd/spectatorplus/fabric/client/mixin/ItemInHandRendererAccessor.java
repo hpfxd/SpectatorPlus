@@ -29,6 +29,12 @@ public interface ItemInHandRendererAccessor {
     @Accessor
     float getOOffHandHeight();
 
+    @Accessor
+    ItemStack getMainHandItem();
+
+    @Accessor
+    ItemStack getOffHandItem();
+
     @Invoker("isChargedCrossbow")
     static boolean invokeIsChargedCrossbow(ItemStack stack) {
         throw new AssertionError();
