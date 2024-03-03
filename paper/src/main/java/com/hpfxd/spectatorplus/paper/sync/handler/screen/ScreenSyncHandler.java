@@ -247,7 +247,7 @@ public class ScreenSyncHandler implements Listener {
 
             // Only open if the current view is not CRAFTING or CREATIVE
             if (view.getType() != InventoryType.CRAFTING && view.getType() != InventoryType.CREATIVE) {
-                this.openSyncedContainer(spectator, view);
+                Bukkit.getScheduler().runTask(this.plugin, () -> this.openSyncedContainer(spectator, view));
             }
         }
     }
