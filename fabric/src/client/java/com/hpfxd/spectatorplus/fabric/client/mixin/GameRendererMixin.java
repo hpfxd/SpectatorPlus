@@ -57,7 +57,7 @@ public abstract class GameRendererMixin {
                 poseStackIn.mulPose(Axis.YP.rotationDegrees(Mth.degreesDifference(Mth.lerp(partialTicks, this.yBobO, this.yBob), Mth.rotLerp(partialTicks, spectated.yRotO, spectated.getYRot())) * 0.1F));
 
                 final ItemInHandRenderer.HandRenderSelection handRenderSelection = evaluateWhichHandsToRender(spectated);
-                final int packedLightCoords = this.minecraft.getEntityRenderDispatcher().getPackedLightCoords(this.minecraft.player, partialTicks);
+                final int packedLightCoords = this.minecraft.getEntityRenderDispatcher().getPackedLightCoords(spectated, partialTicks);
 
                 final ItemInHandRendererAccessor accessor = ((ItemInHandRendererAccessor) this.itemInHandRenderer);
 
