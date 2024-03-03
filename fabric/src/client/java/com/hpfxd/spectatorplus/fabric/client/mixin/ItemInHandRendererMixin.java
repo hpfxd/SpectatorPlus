@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -131,5 +132,14 @@ public abstract class ItemInHandRendererMixin {
     )
     private boolean spectatorplus$mapTwoHandCameraIsInvisible(LocalPlayer instance) {
         return this.minecraft.cameraEntity.isInvisible();
+    }
+
+    @Redirect(method = "*", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getUseItemRemainingTicks()I"))
+    private int spectatorplus$spectatedUseItemRemainingTicks(LocalPlayer instance) {
+        if (this.minecraft.cameraEntity instanceof final LivingEntity livingEntity) {
+            return livingEntity.getUseItemRemainingTicks();
+        }
+
+        return instance.getUseItemRemainingTicks();
     }
 }
