@@ -8,6 +8,7 @@ import com.hpfxd.spectatorplus.paper.SpectatorPlugin;
 import com.hpfxd.spectatorplus.paper.sync.handler.ExperienceSyncHandler;
 import com.hpfxd.spectatorplus.paper.sync.handler.FoodSyncHandler;
 import com.hpfxd.spectatorplus.paper.sync.handler.InventorySyncHandler;
+import com.hpfxd.spectatorplus.paper.sync.handler.MapSyncHandler;
 import com.hpfxd.spectatorplus.paper.sync.handler.SelectedSlotSyncHandler;
 import com.hpfxd.spectatorplus.paper.sync.handler.screen.ScreenSyncHandler;
 import com.hpfxd.spectatorplus.paper.sync.packet.ServerboundOpenedInventorySyncPacket;
@@ -45,6 +46,7 @@ public class ServerSyncController implements PluginMessageListener {
         new FoodSyncHandler(plugin);
         this.inventorySyncHandler = new InventorySyncHandler(plugin);
         new SelectedSlotSyncHandler(plugin);
+        new MapSyncHandler(plugin);
     }
 
     public void sendPacket(Player receiver, ClientboundSyncPacket packet) {
