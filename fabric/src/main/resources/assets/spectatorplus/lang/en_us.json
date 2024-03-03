@@ -32,5 +32,13 @@
   "gui.spectatorplus.config.server.autoUpdatePosition.name": "Auto-teleport spectators",
   "gui.spectatorplus.config.server.autoUpdatePosition.tooltip": "Automatically teleports spectators' bodies to their target's position\nevery second. This is a workaround to mitigate %s.",
 
+  "key.categories.spectatorplus": "SpectatorPlus",
+  "key.spectatorplus.closestPlayer": "Closest Player",
+  "key.spectatorplus.nextPlayer": "Next Player",
+  "key.spectatorplus.previousPlayer": "Previous Player",
+  "spectatorplus.target.no-closest-player": "There are no eligible players nearby",
+  "spectatorplus.target.no-player": "There are no eligible players",
+  "spectatorplus.target.now-spectating": "Now spectating %s",
+
   "spectatorplus.no-inventory-permission": "You don't have permission to open the inventory of other players on this server"
 }

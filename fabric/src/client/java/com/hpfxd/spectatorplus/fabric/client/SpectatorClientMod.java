@@ -22,6 +22,7 @@ public class SpectatorClientMod implements ClientModInitializer {
 
         ClientSyncController.init();
         ClientTargetController.init();
+        SpectatorKeybinds.init();
     }
 
     private void loadConfig() throws IOException {
