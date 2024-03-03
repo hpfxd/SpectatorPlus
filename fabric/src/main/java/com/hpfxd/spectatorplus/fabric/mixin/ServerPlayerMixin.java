@@ -1,28 +1,36 @@
 package com.hpfxd.spectatorplus.fabric.mixin;
 
+import com.google.common.collect.Lists;
 import com.hpfxd.spectatorplus.fabric.SpectatorMod;
 import com.hpfxd.spectatorplus.fabric.sync.ServerSyncController;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundExperienceSyncPacket;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundFoodSyncPacket;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundHotbarSyncPacket;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundSelectedSlotSyncPacket;
-import com.llamalad7.mixinextras.injector.ModifyReceiver;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.server.level.ChunkMap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.MapItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(ServerPlayer.class)
@@ -54,6 +62,43 @@ public abstract class ServerPlayerMixin extends Player {
             ServerSyncController.sendPacket(spectator, ClientboundFoodSyncPacket.initializing(target));
             ServerSyncController.sendPacket(spectator, ClientboundHotbarSyncPacket.initializing(target));
             ServerSyncController.sendPacket(spectator, ClientboundSelectedSlotSyncPacket.initializing(target));
+
+            // Send initial map data patch packet if the target has a map in inventory
+            for (final ItemStack stack : target.getInventory().items) {
+                if (stack.is(Items.FILLED_MAP)) {
+                    final Integer mapId = MapItem.getMapId(stack);
+                    final MapItemSavedData mapItemSavedData = MapItem.getSavedData(mapId, this.level());
+
+                    if (mapItemSavedData != null) {
+                        spectator.connection.send(getInitialMapDataPacket(mapId, mapItemSavedData));
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Constructs a new {@link ClientboundMapItemDataPacket} containing all data from {@link MapItemSavedData} and not
+     * relying that the player has previously received any updates of this map.
+     */
+    @Unique
+    private static ClientboundMapItemDataPacket getInitialMapDataPacket(int mapId, MapItemSavedData data) {
+        return new ClientboundMapItemDataPacket(mapId, data.scale, data.locked, Lists.newArrayList(data.getDecorations()), new MapItemSavedData.MapPatch(0, 0, 128, 128, data.colors));
+    }
+
+    @Inject(
+            method = "doTick()V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V", ordinal = 0),
+            slice = @Slice(
+                    from = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ComplexItem;getUpdatePacket(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;)Lnet/minecraft/network/protocol/Packet;", ordinal = 0),
+                    to = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;getHealth()F", ordinal = 0)
+            )
+    )
+    private void spectatorplus$syncMapData(CallbackInfo ci, @Local Packet<?> packet) {
+        // Send map packet to any spectators of this player. If this is only an update patch of a previously sent map,
+        // any spectators would have already received previous updates, so sending this is fine.
+        for (final ServerPlayer spectator : ServerSyncController.getSpectators(this)) {
+            spectator.connection.send(packet);
         }
     }
 
@@ -82,18 +127,5 @@ public abstract class ServerPlayerMixin extends Player {
 
             this.setCamera(entity);
         }
-    }
-
-    /**
-     * Modify the receiver for calls to {@link ServerPlayer#getInventory()} for spectators to be for the spectated
-     * player's inventory instead. This allows held maps to be rendered.
-     */
-    @ModifyReceiver(method = "doTick()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;getInventory()Lnet/minecraft/world/entity/player/Inventory;"))
-    private ServerPlayer spectatorplus$syncMapData(ServerPlayer instance) {
-        if (instance.getCamera() instanceof ServerPlayer spectated) {
-            return spectated;
-        }
-
-        return instance;
     }
 }
