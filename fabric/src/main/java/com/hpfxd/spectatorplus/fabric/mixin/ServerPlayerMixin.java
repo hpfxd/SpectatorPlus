@@ -6,6 +6,7 @@ import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundExperienceSyncPacke
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundFoodSyncPacket;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundHotbarSyncPacket;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundSelectedSlotSyncPacket;
+import com.llamalad7.mixinextras.injector.ModifyReceiver;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
@@ -81,5 +82,18 @@ public abstract class ServerPlayerMixin extends Player {
 
             this.setCamera(entity);
         }
+    }
+
+    /**
+     * Modify the receiver for calls to {@link ServerPlayer#getInventory()} for spectators to be for the spectated
+     * player's inventory instead. This allows held maps to be rendered.
+     */
+    @ModifyReceiver(method = "doTick()V", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;getInventory()Lnet/minecraft/world/entity/player/Inventory;"))
+    private ServerPlayer spectatorplus$syncMapData(ServerPlayer instance) {
+        if (instance.getCamera() instanceof ServerPlayer spectated) {
+            return spectated;
+        }
+
+        return instance;
     }
 }
