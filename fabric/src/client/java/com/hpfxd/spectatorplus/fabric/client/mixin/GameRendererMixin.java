@@ -50,9 +50,7 @@ public abstract class GameRendererMixin {
 
                 if (handRenderSelection.renderMainHand) {
                     final float swingProgress = interactionHand == InteractionHand.MAIN_HAND ? attackAnim : 0.0F;
-                    final float equippedProgress = 1F - Mth.lerp(partialTicks,
-                            ((ItemInHandRendererAccessor) this.itemInHandRenderer).getOMainHandHeight(),
-                            ((ItemInHandRendererAccessor) this.itemInHandRenderer).getMainHandHeight());
+                    final float equippedProgress = 1F - Mth.lerp(partialTicks, accessor.getOMainHandHeight(), accessor.getMainHandHeight());
 
                     accessor.invokeRenderArmWithItem(spectated, partialTicks,
                             pitch, InteractionHand.MAIN_HAND, swingProgress, accessor.getMainHandItem(), equippedProgress,
@@ -61,9 +59,7 @@ public abstract class GameRendererMixin {
 
                 if (handRenderSelection.renderOffHand) {
                     final float swingProgress = interactionHand == InteractionHand.OFF_HAND ? attackAnim : 0.0F;
-                    final float equippedProgress = 1F - Mth.lerp(partialTicks,
-                            ((ItemInHandRendererAccessor) this.itemInHandRenderer).getOOffHandHeight(),
-                            ((ItemInHandRendererAccessor) this.itemInHandRenderer).getOffHandHeight());
+                    final float equippedProgress = 1F - Mth.lerp(partialTicks, accessor.getOOffHandHeight(), accessor.getOffHandHeight());
 
                     accessor.invokeRenderArmWithItem(spectated, partialTicks,
                             pitch, InteractionHand.OFF_HAND, swingProgress, accessor.getOffHandItem(), equippedProgress,
