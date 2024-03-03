@@ -4,6 +4,7 @@ import com.google.common.base.MoreObjects;
 import com.hpfxd.spectatorplus.fabric.client.SpectatorClientMod;
 import com.hpfxd.spectatorplus.fabric.client.util.SpecUtil;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Camera;
@@ -13,11 +14,13 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderBuffers;
+import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -33,14 +36,15 @@ public abstract class GameRendererMixin {
     @Shadow @Final private RenderBuffers renderBuffers;
     @Shadow @Final public ItemInHandRenderer itemInHandRenderer;
 
-    @Unique
-    private float xBob;
-    @Unique
-    private float yBob;
-    @Unique
-    private float xBobO;
-    @Unique
-    private float yBobO;
+    @Unique private float bob;
+    @Unique private float bobO;
+    @Unique private float walkDist;
+    @Unique private float walkDistO;
+
+    @Unique private float xBob;
+    @Unique private float yBob;
+    @Unique private float xBobO;
+    @Unique private float yBobO;
 
     @Inject(method = "renderItemInHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/Camera;F)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"))
     public void spectatorplus$renderItemInHand(PoseStack poseStackIn, Camera activeRenderInfoIn, float partialTicks, CallbackInfo ci) {
@@ -117,13 +121,52 @@ public abstract class GameRendererMixin {
     private void spectatorplus$tick(CallbackInfo ci) {
         final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
         if (spectated != null) {
+            // View bobbing
+
+            // get horizontal distance between current and last pos
+            final Vec3 pos = spectated.position().with(Direction.Axis.Y, 0);
+            final Vec3 posO = spectated.getPosition(0F).with(Direction.Axis.Y, 0);
+            final float deltaMovement = (float) posO.distanceTo(pos);
+
+            this.walkDistO = this.walkDist;
+            this.walkDist += deltaMovement * 0.6F;
+
+            this.bobO = this.bob;
+            if (spectated.isPassenger() || !spectated.onGround() || spectated.isDeadOrDying() || spectated.isSwimming()) {
+                this.bob = 0.0F;
+            } else {
+                this.bob += (Math.min(0.1F, deltaMovement) - this.bob) * 0.4F;
+            }
+
+            // Hand swaying
+
             this.yBobO = this.yBob;
             this.xBobO = this.xBob;
             this.xBob += Mth.degreesDifference(this.xBob, spectated.getXRot()) * 0.5F;
             this.yBob += Mth.degreesDifference(this.yBob, spectated.getYRot()) * 0.5F;
         } else {
-            this.xBob = this.yBob = this.xBobO = this.yBobO = 0;
+            this.bob = this.bobO = this.walkDist = this.walkDistO = this.xBob = this.yBob = this.xBobO = this.yBobO = 0;
         }
+    }
+
+    @ModifyExpressionValue(method = "bobView(Lcom/mojang/blaze3d/vertex/PoseStack;F)V", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/player/Player;walkDist:F"))
+    private float spectatorplus$modifyBobWalkDist(float original, @Local Player cameraPlayer) {
+        return cameraPlayer == this.minecraft.player ? original : this.walkDist;
+    }
+
+    @ModifyExpressionValue(method = "bobView(Lcom/mojang/blaze3d/vertex/PoseStack;F)V", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/player/Player;walkDistO:F"))
+    private float spectatorplus$modifyBobWalkDistO(float original, @Local Player cameraPlayer) {
+        return cameraPlayer == this.minecraft.player ? original : this.walkDistO;
+    }
+
+    @ModifyExpressionValue(method = "bobView(Lcom/mojang/blaze3d/vertex/PoseStack;F)V", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/player/Player;bob:F"))
+    private float spectatorplus$modifyBobValue(float original, @Local Player cameraPlayer) {
+        return cameraPlayer == this.minecraft.player ? original : this.bob;
+    }
+
+    @ModifyExpressionValue(method = "bobView(Lcom/mojang/blaze3d/vertex/PoseStack;F)V", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/player/Player;oBob:F"))
+    private float spectatorplus$modifyBobValueO(float original, @Local Player cameraPlayer) {
+        return cameraPlayer == this.minecraft.player ? original : this.bobO;
     }
 
     @ModifyExpressionValue(method = "pick(F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;getPickRange()F"))
