@@ -1,11 +1,20 @@
 package com.hpfxd.spectatorplus.fabric.client;
 
 import com.google.common.collect.Iterables;
+import com.hpfxd.spectatorplus.fabric.client.mixin.PlayerMenuItemAccessor;
+import com.hpfxd.spectatorplus.fabric.client.mixin.SpectatorGuiAccessor;
+import com.hpfxd.spectatorplus.fabric.client.mixin.SpectatorMenuAccessor;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.minecraft.ChatFormatting;
+import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.components.spectator.SpectatorGui;
+import net.minecraft.client.gui.spectator.PlayerMenuItem;
+import net.minecraft.client.gui.spectator.SpectatorMenu;
+import net.minecraft.client.gui.spectator.SpectatorMenuItem;
+import net.minecraft.client.gui.spectator.categories.TeleportToPlayerMenuCategory;
 import net.minecraft.client.multiplayer.PlayerInfo;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundTeleportToEntityPacket;
@@ -116,6 +125,47 @@ public class SpectatorKeybinds {
             ClientTargetController.requestTargetFromServer(mc, uuid);
         } else {
             mc.getConnection().send(new ServerboundTeleportToEntityPacket(uuid));
+        }
+
+        if (SpectatorClientMod.config.keybindsOpenMenu || mc.gui.getSpectatorGui().isMenuActive()) {
+            selectInMenu(mc, uuid);
+        }
+    }
+
+    private static void selectInMenu(Minecraft mc, UUID uuid) {
+        final TeleportToPlayerMenuCategory category = new TeleportToPlayerMenuCategory();
+        final SpectatorMenuItem menuItem = Iterables.find(category.getItems(), item -> item instanceof PlayerMenuItem && uuid.equals(((PlayerMenuItemAccessor) item).getProfile().getId()));
+
+        if (menuItem == null) {
+            return;
+        }
+
+        final SpectatorGui gui = mc.gui.getSpectatorGui();
+        if (!gui.isMenuActive()) {
+            // Activate the menu
+            gui.onMouseMiddleClick();
+        }
+
+        final SpectatorMenu menu = ((SpectatorGuiAccessor) gui).getMenu();
+        if (menu != null) {
+            menu.selectCategory(category);
+            ((SpectatorGuiAccessor) gui).setLastSelectionTime(Util.getMillis());
+            ((SpectatorMenuAccessor) menu).setPage(0);
+
+            // Loop through pages until we find the one with the wanted PlayerMenuItem
+            int page = 0;
+            do {
+                ((SpectatorMenuAccessor) menu).setPage(page++);
+
+                final int index = Iterables.indexOf(menu.getItems(), item -> item.equals(menuItem));
+                if (index != -1) {
+                    // This page contains the player's menu item, so select the slot if it is not selected
+                    if (menu.getSelectedSlot() != index) {
+                        menu.selectSlot(index);
+                    }
+                    break;
+                }
+            } while (menu.getItem(7).isEnabled()); // Slot 7 = Next page. If it is not enabled, we've reached the end
         }
     }
 }

@@ -82,6 +82,11 @@ public class ClothConfigIntegration {
                 .setSaveConsumer(val -> config.teleportAutoSpectate = val)
                 .build());
 
+        category.addEntry(entryBuilder.startBooleanToggle(Component.translatable("gui.spectatorplus.config.client.keybindsOpenMenu.name"), config.keybindsOpenMenu)
+                .setTooltip(Component.translatable("gui.spectatorplus.config.client.keybindsOpenMenu.tooltip"))
+                .setSaveConsumer(val -> config.keybindsOpenMenu = val)
+                .build());
+
         category.addEntry(entryBuilder.startBooleanToggle(Component.translatable("gui.spectatorplus.config.client.openScreens.name"), config.openScreens)
                 .setTooltip(Component.translatable("gui.spectatorplus.config.client.openScreens.tooltip"))
                 .setSaveConsumer(val -> config.openScreens = val)
