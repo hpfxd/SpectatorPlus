@@ -20,6 +20,8 @@
   "gui.spectatorplus.config.client.showInvisibleEntities.tooltip": "Whether invisible entities will be rendered as\nhalf-transparent in spectator mode.",
   "gui.spectatorplus.config.client.teleportAutoSpectate.name": "Spectate when teleporting",
   "gui.spectatorplus.config.client.teleportAutoSpectate.tooltip": "Automatically start spectating players when teleporting\nusing the spectator hotbar menu.",
+  "gui.spectatorplus.config.client.keybindsOpenMenu.name": "Keybinds Open Spectator Menu",
+  "gui.spectatorplus.config.client.keybindsOpenMenu.tooltip": "Automatically open the spectator menu and show\nthe target player when using SpectatorPlus\nteleport keybinds.\n\nNote: If the spectator menu is already open, the\nplayer will be automatically selected regardless.",
   "gui.spectatorplus.config.client.openScreens.name": "Open Synced Screens",
   "gui.spectatorplus.config.client.openScreens.tooltip": "Shows the currently open screen the spectated\nplayer is looking at. Manually requested screens\nsuch as the inventory can still be opened.",
   "gui.spectatorplus.config.client.hideTooltipUntilMouseMove.name": "Hide Tooltip Until Mouse Move",
@@ -31,6 +33,14 @@
   "gui.spectatorplus.config.server.allowTransferBetweenLevels.tooltip": "Whether player's spectators transfer with them when\ntravelling between worlds.",
   "gui.spectatorplus.config.server.autoUpdatePosition.name": "Auto-teleport spectators",
   "gui.spectatorplus.config.server.autoUpdatePosition.tooltip": "Automatically teleports spectators' bodies to their target's position\nevery second. This is a workaround to mitigate %s.",
+
+  "key.categories.spectatorplus": "SpectatorPlus",
+  "key.spectatorplus.closestPlayer": "Closest Player",
+  "key.spectatorplus.nextPlayer": "Next Player",
+  "key.spectatorplus.previousPlayer": "Previous Player",
+  "spectatorplus.target.no-closest-player": "There are no eligible players nearby",
+  "spectatorplus.target.no-player": "There are no eligible players",
+  "spectatorplus.target.now-spectating": "Now spectating %s",
 
   "spectatorplus.no-inventory-permission": "You don't have permission to open the inventory of other players on this server"
 }
