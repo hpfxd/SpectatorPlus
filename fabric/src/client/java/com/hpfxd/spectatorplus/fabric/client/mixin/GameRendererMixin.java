@@ -21,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -46,8 +47,8 @@ public abstract class GameRendererMixin {
     @Unique private float xBobO;
     @Unique private float yBobO;
 
-    @Inject(method = "renderItemInHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/Camera;F)V", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/vertex/PoseStack;popPose()V"))
-    public void spectatorplus$renderItemInHand(PoseStack poseStackIn, Camera activeRenderInfoIn, float partialTicks, CallbackInfo ci) {
+    @Inject(method = "renderItemInHand(Lnet/minecraft/client/Camera;FLorg/joml/Matrix4f;)V", at = @At(value = "INVOKE", target = "Lorg/joml/Matrix4fStack;popMatrix()Lorg/joml/Matrix4fStack;"))
+    public void spectatorplus$renderItemInHand(Camera camera, float partialTicks, Matrix4f matrix4f, CallbackInfo ci, @Local PoseStack poseStackIn) {
         if (SpectatorClientMod.config.renderArms && this.minecraft.player != null && this.minecraft.options.getCameraType().isFirstPerson() && !this.minecraft.options.hideGui) {
             final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
             if (spectated != null && !spectated.isSpectator()) {
