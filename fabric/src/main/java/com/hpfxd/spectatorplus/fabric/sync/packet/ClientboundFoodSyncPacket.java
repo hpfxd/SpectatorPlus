@@ -2,10 +2,11 @@ package com.hpfxd.spectatorplus.fabric.sync.packet;
 
 import com.hpfxd.spectatorplus.fabric.sync.ClientboundSyncPacket;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -14,7 +15,8 @@ public record ClientboundFoodSyncPacket(
         int food,
         float saturation
 ) implements ClientboundSyncPacket {
-    public static final PacketType<ClientboundFoodSyncPacket> TYPE = PacketType.create(new ResourceLocation("spectatorplus", "food_sync"), ClientboundFoodSyncPacket::new);
+    public static final StreamCodec<FriendlyByteBuf, ClientboundFoodSyncPacket> STREAM_CODEC = CustomPacketPayload.codec(ClientboundFoodSyncPacket::write, ClientboundFoodSyncPacket::new);
+    public static final CustomPacketPayload.Type<ClientboundFoodSyncPacket> TYPE = CustomPacketPayload.createType("spectatorplus:food_sync");
     private static final String PERMISSION = "spectatorplus.sync.food";
 
     public static ClientboundFoodSyncPacket initializing(ServerPlayer target) {
@@ -25,7 +27,6 @@ public record ClientboundFoodSyncPacket(
         this(buf.readUUID(), buf.readInt(), buf.readFloat());
     }
 
-    @Override
     public void write(FriendlyByteBuf buf) {
         buf.writeUUID(this.playerId);
         buf.writeInt(this.food);
@@ -33,7 +34,7 @@ public record ClientboundFoodSyncPacket(
     }
 
     @Override
-    public PacketType<?> getType() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 

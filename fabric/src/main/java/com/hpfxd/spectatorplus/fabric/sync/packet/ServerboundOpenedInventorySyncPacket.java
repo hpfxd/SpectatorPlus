@@ -1,12 +1,13 @@
 package com.hpfxd.spectatorplus.fabric.sync.packet;
 
 import com.hpfxd.spectatorplus.fabric.sync.ServerboundSyncPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
 public final class ServerboundOpenedInventorySyncPacket implements ServerboundSyncPacket {
-    public static final PacketType<ServerboundOpenedInventorySyncPacket> TYPE = PacketType.create(new ResourceLocation("spectatorplus", "opened_inventory_sync"), ServerboundOpenedInventorySyncPacket::new);
+    public static final StreamCodec<FriendlyByteBuf, ServerboundOpenedInventorySyncPacket> STREAM_CODEC = CustomPacketPayload.codec(ServerboundOpenedInventorySyncPacket::write, ServerboundOpenedInventorySyncPacket::new);
+    public static final CustomPacketPayload.Type<ServerboundOpenedInventorySyncPacket> TYPE = CustomPacketPayload.createType("spectatorplus:opened_inventory_sync");
 
     public ServerboundOpenedInventorySyncPacket() {
     }
@@ -14,12 +15,11 @@ public final class ServerboundOpenedInventorySyncPacket implements ServerboundSy
     public ServerboundOpenedInventorySyncPacket(FriendlyByteBuf buf) {
     }
 
-    @Override
     public void write(FriendlyByteBuf buf) {
     }
 
     @Override
-    public PacketType<?> getType() {
+    public Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 }

@@ -1,6 +1,6 @@
 package com.hpfxd.spectatorplus.fabric.sync;
 
-import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 
-public interface ServerboundSyncPacket extends FabricPacket {
+public interface ServerboundSyncPacket extends CustomPacketPayload {
 }

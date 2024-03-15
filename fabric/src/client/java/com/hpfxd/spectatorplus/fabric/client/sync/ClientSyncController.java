@@ -8,8 +8,6 @@ import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundSelectedSlotSyncPac
 import net.fabricmc.fabric.api.client.networking.v1.ClientLoginConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.ItemStack;
 
@@ -30,7 +28,7 @@ public class ClientSyncController {
         ScreenSyncController.init();
     }
 
-    private static void handle(ClientboundExperienceSyncPacket packet, LocalPlayer player, PacketSender sender) {
+    private static void handle(ClientboundExperienceSyncPacket packet, ClientPlayNetworking.Context context) {
         setSyncData(packet.playerId());
 
         syncData.experienceProgress = packet.progress();
@@ -38,7 +36,7 @@ public class ClientSyncController {
         syncData.experienceNeededForNextLevel = packet.neededForNextLevel();
     }
 
-    private static void handle(ClientboundFoodSyncPacket packet, LocalPlayer player, PacketSender sender) {
+    private static void handle(ClientboundFoodSyncPacket packet, ClientPlayNetworking.Context context) {
         setSyncData(packet.playerId());
 
         if (syncData.foodData == null) {
@@ -48,7 +46,7 @@ public class ClientSyncController {
         syncData.foodData.setSaturation(packet.saturation());
     }
 
-    private static void handle(ClientboundHotbarSyncPacket packet, LocalPlayer player, PacketSender sender) {
+    private static void handle(ClientboundHotbarSyncPacket packet, ClientPlayNetworking.Context context) {
         setSyncData(packet.playerId());
 
         final ItemStack[] items = packet.items();
@@ -61,7 +59,7 @@ public class ClientSyncController {
         }
     }
 
-    private static void handle(ClientboundSelectedSlotSyncPacket packet, LocalPlayer player, PacketSender sender) {
+    private static void handle(ClientboundSelectedSlotSyncPacket packet, ClientPlayNetworking.Context context) {
         setSyncData(packet.playerId());
 
         syncData.selectedHotbarSlot = packet.selectedSlot();

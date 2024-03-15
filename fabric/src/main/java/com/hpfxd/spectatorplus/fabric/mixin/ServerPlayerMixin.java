@@ -10,6 +10,7 @@ import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundSelectedSlotSyncPac
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundMapItemDataPacket;
 import net.minecraft.server.level.ChunkMap;
@@ -22,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.Opcodes;
@@ -66,7 +68,7 @@ public abstract class ServerPlayerMixin extends Player {
             // Send initial map data patch packet if the target has a map in inventory
             for (final ItemStack stack : target.getInventory().items) {
                 if (stack.is(Items.FILLED_MAP)) {
-                    final Integer mapId = MapItem.getMapId(stack);
+                    final MapId mapId = stack.get(DataComponents.MAP_ID);
                     final MapItemSavedData mapItemSavedData = MapItem.getSavedData(mapId, this.level());
 
                     if (mapItemSavedData != null) {
@@ -82,7 +84,7 @@ public abstract class ServerPlayerMixin extends Player {
      * relying that the player has previously received any updates of this map.
      */
     @Unique
-    private static ClientboundMapItemDataPacket getInitialMapDataPacket(int mapId, MapItemSavedData data) {
+    private static ClientboundMapItemDataPacket getInitialMapDataPacket(MapId mapId, MapItemSavedData data) {
         return new ClientboundMapItemDataPacket(mapId, data.scale, data.locked, Lists.newArrayList(data.getDecorations()), new MapItemSavedData.MapPatch(0, 0, 128, 128, data.colors));
     }
 

@@ -1,10 +1,11 @@
 package com.hpfxd.spectatorplus.fabric.sync.packet;
 
 import com.hpfxd.spectatorplus.fabric.sync.ClientboundSyncPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -12,13 +13,13 @@ public record ClientboundScreenSyncPacket(
         UUID playerId,
         int flags
 ) implements ClientboundSyncPacket {
-    public static final PacketType<ClientboundScreenSyncPacket> TYPE = PacketType.create(new ResourceLocation("spectatorplus", "screen_sync"), ClientboundScreenSyncPacket::new);
+    public static final StreamCodec<FriendlyByteBuf, ClientboundScreenSyncPacket> STREAM_CODEC = CustomPacketPayload.codec(ClientboundScreenSyncPacket::write, ClientboundScreenSyncPacket::new);
+    public static final CustomPacketPayload.Type<ClientboundScreenSyncPacket> TYPE = CustomPacketPayload.createType("spectatorplus:screen_sync");
 
     public ClientboundScreenSyncPacket(FriendlyByteBuf buf) {
         this(buf.readUUID(), buf.readByte());
     }
 
-    @Override
     public void write(FriendlyByteBuf buf) {
         buf.writeUUID(this.playerId);
         buf.writeByte(this.flags);
@@ -37,7 +38,7 @@ public record ClientboundScreenSyncPacket(
     }
 
     @Override
-    public PacketType<?> getType() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
