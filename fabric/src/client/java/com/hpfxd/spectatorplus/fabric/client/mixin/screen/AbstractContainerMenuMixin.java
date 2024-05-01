@@ -1,7 +1,7 @@
 package com.hpfxd.spectatorplus.fabric.client.mixin.screen;
 
 import com.hpfxd.spectatorplus.fabric.client.sync.screen.ScreenSyncController;
-import com.llamalad7.mixinextras.injector.WrapWithCondition;
+import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
