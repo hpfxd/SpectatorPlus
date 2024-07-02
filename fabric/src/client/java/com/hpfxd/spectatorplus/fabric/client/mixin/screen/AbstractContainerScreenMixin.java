@@ -91,7 +91,7 @@ public abstract class AbstractContainerScreenMixin {
             if (cursorSlot != -1 && this.cursorSlot != -1 && this.cursorSlot != cursorSlot) {
                 final ItemStack animationItem = this.cursorItem.isEmpty() ? cursorItem : this.cursorItem;
 
-                if (!animationItem.isEmpty()) {
+                if (!animationItem.isEmpty() && this.menu.isValidSlotIndex(this.cursorSlot) && this.menu.isValidSlotIndex(cursorSlot)) {
                     this.animations.add(new ItemMoveAnimation(this.cursorSlot, cursorSlot, animationItem));
                 }
             }
@@ -111,7 +111,7 @@ public abstract class AbstractContainerScreenMixin {
             this.spectatorplus$renderCursorItem(guiGraphics, animation.itemStack, cursorX, cursorY);
         }
 
-        if (!this.cursorItem.isEmpty() && this.cursorSlot > 0) {
+        if (!this.cursorItem.isEmpty() && this.cursorSlot > 0 && this.menu.isValidSlotIndex(this.cursorSlot)) {
             final Slot slot = this.menu.getSlot(this.cursorSlot);
             this.spectatorplus$renderCursorItem(guiGraphics, this.cursorItem, slot.x, slot.y);
         }
