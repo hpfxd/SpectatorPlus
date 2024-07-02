@@ -33,7 +33,6 @@
     ]
   },
   "custom": {
-    "fabric-renderer-api-v1:contains_renderer": true,
     "modmenu": {
       "links": {
         "modmenu.modrinth": "https://modrinth.com/project/spectatorplus"
@@ -52,13 +51,13 @@
   ],
   "depends": {
     "fabricloader": ">=0.15.0",
-    "minecraft": "~1.20.4",
-    "java": ">=17",
+    "minecraft": "~1.20.5",
+    "java": ">=21",
     "fabric-api": "*",
     "fabric-permissions-api-v0": "*"
   },
   "suggests": {
-    "cloth-config": "^13.0.0",
-    "modmenu": "^9.0.0"
+    "cloth-config": "^14.0.0",
+    "modmenu": "^10.0.0"
   }
 }

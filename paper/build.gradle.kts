@@ -1,6 +1,6 @@
 plugins {
     id("spectatorplus.platform")
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    id("io.github.goooler.shadow") version "8.1.7"
 }
 
 description = "Paper server-side companion for the SpectatorPlus mod"
@@ -8,6 +8,7 @@ description = "Paper server-side companion for the SpectatorPlus mod"
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
+    maven("https://s01.oss.sonatype.org/content/repositories/snapshots/")
 }
 
 dependencies {

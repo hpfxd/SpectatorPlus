@@ -11,6 +11,8 @@ import java.util.Collection;
 
 public class ServerSyncController {
     public static void init() {
+        SyncPackets.registerAll();
+
         HotbarSyncHandler.init();
         ScreenSyncHandler.init();
     }

@@ -1,11 +1,13 @@
 package com.hpfxd.spectatorplus.fabric.sync.packet;
 
 import com.hpfxd.spectatorplus.fabric.sync.ClientboundSyncPacket;
-import net.fabricmc.fabric.api.networking.v1.PacketType;
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import com.hpfxd.spectatorplus.fabric.sync.CustomPacketCodecs;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.UUID;
 
@@ -14,21 +16,21 @@ public record ClientboundScreenCursorSyncPacket(
         ItemStack cursor,
         int originSlot
 ) implements ClientboundSyncPacket {
-    public static final PacketType<ClientboundScreenCursorSyncPacket> TYPE = PacketType.create(new ResourceLocation("spectatorplus", "screen_cursor_sync"), ClientboundScreenCursorSyncPacket::new);
+    public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundScreenCursorSyncPacket> STREAM_CODEC = CustomPacketPayload.codec(ClientboundScreenCursorSyncPacket::write, ClientboundScreenCursorSyncPacket::new);
+    public static final CustomPacketPayload.Type<ClientboundScreenCursorSyncPacket> TYPE = CustomPacketPayload.createType("spectatorplus:screen_cursor_sync");
 
-    public ClientboundScreenCursorSyncPacket(FriendlyByteBuf buf) {
-        this(buf.readUUID(), ClientboundHotbarSyncPacket.readItem(buf), buf.readByte());
+    public ClientboundScreenCursorSyncPacket(RegistryFriendlyByteBuf buf) {
+        this(buf.readUUID(), CustomPacketCodecs.readItem(buf), buf.readByte());
     }
 
-    @Override
-    public void write(FriendlyByteBuf buf) {
+    public void write(RegistryFriendlyByteBuf buf) {
         buf.writeUUID(this.playerId);
-        ClientboundHotbarSyncPacket.writeItem(buf, this.cursor);
+        CustomPacketCodecs.writeItem(buf, this.cursor);
         buf.writeByte(this.originSlot);
     }
 
     @Override
-    public PacketType<?> getType() {
+    public @NotNull Type<? extends CustomPacketPayload> type() {
         return TYPE;
     }
 
