@@ -5,6 +5,7 @@ import com.hpfxd.spectatorplus.fabric.sync.CustomPacketCodecs;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -17,7 +18,7 @@ public record ClientboundScreenCursorSyncPacket(
         int originSlot
 ) implements ClientboundSyncPacket {
     public static final StreamCodec<RegistryFriendlyByteBuf, ClientboundScreenCursorSyncPacket> STREAM_CODEC = CustomPacketPayload.codec(ClientboundScreenCursorSyncPacket::write, ClientboundScreenCursorSyncPacket::new);
-    public static final CustomPacketPayload.Type<ClientboundScreenCursorSyncPacket> TYPE = CustomPacketPayload.createType("spectatorplus:screen_cursor_sync");
+    public static final CustomPacketPayload.Type<ClientboundScreenCursorSyncPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.parse("spectatorplus:screen_cursor_sync"));
 
     public ClientboundScreenCursorSyncPacket(RegistryFriendlyByteBuf buf) {
         this(buf.readUUID(), CustomPacketCodecs.readItem(buf), buf.readByte());

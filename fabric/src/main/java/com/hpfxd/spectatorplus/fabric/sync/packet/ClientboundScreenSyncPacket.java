@@ -4,6 +4,7 @@ import com.hpfxd.spectatorplus.fabric.sync.ClientboundSyncPacket;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,7 +15,7 @@ public record ClientboundScreenSyncPacket(
         int flags
 ) implements ClientboundSyncPacket {
     public static final StreamCodec<FriendlyByteBuf, ClientboundScreenSyncPacket> STREAM_CODEC = CustomPacketPayload.codec(ClientboundScreenSyncPacket::write, ClientboundScreenSyncPacket::new);
-    public static final CustomPacketPayload.Type<ClientboundScreenSyncPacket> TYPE = CustomPacketPayload.createType("spectatorplus:screen_sync");
+    public static final CustomPacketPayload.Type<ClientboundScreenSyncPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.parse("spectatorplus:screen_sync"));
 
     public ClientboundScreenSyncPacket(FriendlyByteBuf buf) {
         this(buf.readUUID(), buf.readByte());

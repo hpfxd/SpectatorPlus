@@ -5,6 +5,7 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,7 +17,7 @@ public record ClientboundFoodSyncPacket(
         float saturation
 ) implements ClientboundSyncPacket {
     public static final StreamCodec<FriendlyByteBuf, ClientboundFoodSyncPacket> STREAM_CODEC = CustomPacketPayload.codec(ClientboundFoodSyncPacket::write, ClientboundFoodSyncPacket::new);
-    public static final CustomPacketPayload.Type<ClientboundFoodSyncPacket> TYPE = CustomPacketPayload.createType("spectatorplus:food_sync");
+    public static final CustomPacketPayload.Type<ClientboundFoodSyncPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.parse("spectatorplus:food_sync"));
     private static final String PERMISSION = "spectatorplus.sync.food";
 
     public static ClientboundFoodSyncPacket initializing(ServerPlayer target) {

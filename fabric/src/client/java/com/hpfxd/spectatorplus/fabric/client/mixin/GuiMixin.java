@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.injector.ModifyReceiver;
 import com.llamalad7.mixinextras.injector.v2.WrapWithCondition;
 import com.llamalad7.mixinextras.sugar.Share;
 import com.llamalad7.mixinextras.sugar.ref.LocalRef;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
@@ -38,10 +39,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class GuiMixin {
     @Shadow @Final private Minecraft minecraft;
     @Shadow public abstract SpectatorGui getSpectatorGui();
-    @Shadow protected abstract void renderItemHotbar(GuiGraphics guiGraphics, float partialTick);
+    @Shadow protected abstract void renderItemHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker);
     @Shadow protected abstract void renderSelectedItemName(GuiGraphics guiGraphics);
 
-    @Redirect(method = "renderCameraOverlays(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isScoping()Z"))
+    @Redirect(method = "renderCameraOverlays(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isScoping()Z"))
     private boolean spectatorplus$renderScoping(LocalPlayer instance) {
         final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
         if (spectated != null) {
@@ -50,7 +51,7 @@ public abstract class GuiMixin {
         return instance.isScoping();
     }
 
-    @ModifyReceiver(method = "renderCameraOverlays(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;getArmor(I)Lnet/minecraft/world/item/ItemStack;"))
+    @ModifyReceiver(method = "renderCameraOverlays(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;getArmor(I)Lnet/minecraft/world/item/ItemStack;"))
     private Inventory spectatorplus$renderPumpkinOverlay(Inventory instance, int slot) {
         final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
         if (spectated != null) {
@@ -59,25 +60,25 @@ public abstract class GuiMixin {
         return instance;
     }
 
-    @Redirect(method = "renderCameraOverlays(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getTicksFrozen()I"))
+    @Redirect(method = "renderCameraOverlays(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getTicksFrozen()I"))
     private int spectatorplus$renderFreezeOverlay(LocalPlayer instance) {
         return this.minecraft.getCameraEntity().getTicksFrozen();
     }
 
-    @Redirect(method = "renderCameraOverlays(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getPercentFrozen()F"))
+    @Redirect(method = "renderCameraOverlays(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getPercentFrozen()F"))
     private float spectatorplus$renderFreezeOverlayPercent(LocalPlayer instance) {
         return this.minecraft.getCameraEntity().getPercentFrozen();
     }
 
-    @Inject(method = "renderHotbarAndDecorations(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/spectator/SpectatorGui;renderHotbar(Lnet/minecraft/client/gui/GuiGraphics;)V"))
-    private void spectatorplus$renderHotbar(GuiGraphics guiGraphics, float partialTick, CallbackInfo ci, @Share("spectated") LocalRef<AbstractClientPlayer> spectatedRef) {
+    @Inject(method = "renderHotbarAndDecorations(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/components/spectator/SpectatorGui;renderHotbar(Lnet/minecraft/client/gui/GuiGraphics;)V"))
+    private void spectatorplus$renderHotbar(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci, @Share("spectated") LocalRef<AbstractClientPlayer> spectatedRef) {
         if (!this.getSpectatorGui().isMenuActive() && !this.minecraft.options.hideGui) {
             final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
             spectatedRef.set(spectated);
 
             if (spectated != null) {
                 if (ClientSyncController.syncData != null && ClientSyncController.syncData.selectedHotbarSlot != -1 && !spectated.isSpectator() && SpectatorClientMod.config.renderHotbar) {
-                    this.renderItemHotbar(guiGraphics, partialTick);
+                    this.renderItemHotbar(guiGraphics, deltaTracker);
                 }
 
                 this.renderSelectedItemName(guiGraphics);
@@ -85,7 +86,7 @@ public abstract class GuiMixin {
         }
     }
 
-    @ModifyExpressionValue(method = "renderHotbarAndDecorations(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;canHurtPlayer()Z"))
+    @ModifyExpressionValue(method = "renderHotbarAndDecorations(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;canHurtPlayer()Z"))
     private boolean spectatorplus$renderHealth(boolean original, @Share("spectated") LocalRef<AbstractClientPlayer> spectatedRef) {
         if (original) {
             return true;
@@ -122,7 +123,7 @@ public abstract class GuiMixin {
         }
     }
 
-    @Redirect(method = "renderCrosshair(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getAttackStrengthScale(F)F"))
+    @Redirect(method = "renderCrosshair(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getAttackStrengthScale(F)F"))
     private float spectatorplus$fixCrosshairAttackStrength(LocalPlayer instance, float adjustTicks) {
         if (this.minecraft.getCameraEntity() instanceof Player player) {
             return player.getAttackStrengthScale(adjustTicks);
@@ -130,7 +131,7 @@ public abstract class GuiMixin {
         return instance.getAttackStrengthScale(adjustTicks);
     }
 
-    @Redirect(method = "renderCrosshair(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getCurrentItemAttackStrengthDelay()F"))
+    @Redirect(method = "renderCrosshair(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getCurrentItemAttackStrengthDelay()F"))
     private float spectatorplus$fixCrosshairCurrentItemAttackStrengthDelay(LocalPlayer instance) {
         if (this.minecraft.getCameraEntity() instanceof Player player) {
             return player.getCurrentItemAttackStrengthDelay();
@@ -161,7 +162,7 @@ public abstract class GuiMixin {
         return (ClientSyncController.syncData != null && ClientSyncController.syncData.foodData != null) || SpecUtil.getCameraPlayer(this.minecraft) == null;
     }
 
-    @Redirect(method = "renderItemHotbar(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/player/Inventory;selected:I", opcode = Opcodes.GETFIELD))
+    @Redirect(method = "renderItemHotbar(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", at = @At(value = "FIELD", target = "Lnet/minecraft/world/entity/player/Inventory;selected:I", opcode = Opcodes.GETFIELD))
     private int spectatorplus$showSyncedSelectedSlot(Inventory inventory) {
         if (ClientSyncController.syncData != null && ClientSyncController.syncData.selectedHotbarSlot != -1 && SpecUtil.getCameraPlayer(this.minecraft) != null) {
             return ClientSyncController.syncData.selectedHotbarSlot;
@@ -177,7 +178,7 @@ public abstract class GuiMixin {
         return instance.getFoodData();
     }
 
-    @ModifyReceiver(method = "renderItemHotbar(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/NonNullList;get(I)Ljava/lang/Object;", ordinal = 0))
+    @ModifyReceiver(method = "renderItemHotbar(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/NonNullList;get(I)Ljava/lang/Object;", ordinal = 0))
     private NonNullList<ItemStack> spectatorplus$showSyncedItems(NonNullList<ItemStack> instance, int i) {
         if (ClientSyncController.syncData != null && ClientSyncController.syncData.selectedHotbarSlot != -1 && SpecUtil.getCameraPlayer(this.minecraft) != null) {
             return ClientSyncController.syncData.hotbarItems;
@@ -201,7 +202,7 @@ public abstract class GuiMixin {
         return instance.experienceProgress;
     }
 
-    @Redirect(method = "renderExperienceLevel(Lnet/minecraft/client/gui/GuiGraphics;F)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/LocalPlayer;experienceLevel:I", opcode = Opcodes.GETFIELD))
+    @Redirect(method = "renderExperienceLevel(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", at = @At(value = "FIELD", target = "Lnet/minecraft/client/player/LocalPlayer;experienceLevel:I", opcode = Opcodes.GETFIELD))
     private int spectatorplus$showSyncedExperienceLevel(LocalPlayer instance) {
         if (ClientSyncController.syncData != null && ClientSyncController.syncData.experienceLevel != -1 && SpecUtil.getCameraPlayer(this.minecraft) != null) {
             return ClientSyncController.syncData.experienceLevel;

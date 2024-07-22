@@ -5,6 +5,7 @@ import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 
@@ -17,7 +18,7 @@ public record ClientboundSelectedSlotSyncPacket(
         int selectedSlot
 ) implements ClientboundSyncPacket {
     public static final StreamCodec<FriendlyByteBuf, ClientboundSelectedSlotSyncPacket> STREAM_CODEC = CustomPacketPayload.codec(ClientboundSelectedSlotSyncPacket::write, ClientboundSelectedSlotSyncPacket::new);
-    public static final CustomPacketPayload.Type<ClientboundSelectedSlotSyncPacket> TYPE = CustomPacketPayload.createType("spectatorplus:selected_slot_sync");
+    public static final CustomPacketPayload.Type<ClientboundSelectedSlotSyncPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.parse("spectatorplus:selected_slot_sync"));
 
     public static ClientboundSelectedSlotSyncPacket initializing(ServerPlayer target) {
         return new ClientboundSelectedSlotSyncPacket(target.getUUID(), target.getInventory().selected);

@@ -12,7 +12,6 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -118,17 +117,12 @@ public abstract class ItemInHandRendererMixin {
         instance.renderLeftHand(poseStack, buffer, combinedLight, (AbstractClientPlayer) this.minecraft.cameraEntity);
     }
 
-    @Redirect(method = "*", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isInvisible()Z"))
+    @Redirect(method = {
+            "renderOneHandedMap(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IFLnet/minecraft/world/entity/HumanoidArm;FLnet/minecraft/world/item/ItemStack;)V",
+            "renderTwoHandedMap(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IFFF)V",
+            "renderArmWithItem(Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V"
+    }, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isInvisible()Z"))
     private boolean spectatorplus$spectatedInvisibility(LocalPlayer instance) {
         return this.minecraft.cameraEntity.isInvisible();
-    }
-
-    @Redirect(method = "*", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getUseItemRemainingTicks()I"))
-    private int spectatorplus$spectatedUseItemRemainingTicks(LocalPlayer instance) {
-        if (this.minecraft.cameraEntity instanceof final LivingEntity livingEntity) {
-            return livingEntity.getUseItemRemainingTicks();
-        }
-
-        return instance.getUseItemRemainingTicks();
     }
 }
