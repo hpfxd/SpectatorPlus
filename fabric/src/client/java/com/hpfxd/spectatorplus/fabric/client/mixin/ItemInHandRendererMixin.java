@@ -1,17 +1,16 @@
 package com.hpfxd.spectatorplus.fabric.client.mixin;
 
 import com.hpfxd.spectatorplus.fabric.client.util.SpecUtil;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.client.renderer.entity.EntityRenderer;
-import net.minecraft.client.renderer.entity.player.PlayerRenderer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.player.PlayerModelPart;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -97,30 +96,21 @@ public abstract class ItemInHandRendererMixin {
             method = "renderMapHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/HumanoidArm;)V",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/EntityRenderDispatcher;getRenderer(Lnet/minecraft/world/entity/Entity;)Lnet/minecraft/client/renderer/entity/EntityRenderer;")
     )
-    private <T extends Entity> EntityRenderer<? super T> spectatorplus$mapHandUseCameraEntityRenderer(EntityRenderDispatcher instance, T entity) {
+    private <T extends Entity> EntityRenderer<? super T, ?> spectatorplus$mapHandUseCameraEntityRenderer(EntityRenderDispatcher instance, T entity) {
         return instance.getRenderer(this.minecraft.cameraEntity);
     }
 
     @Redirect(
             method = "renderMapHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/HumanoidArm;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/player/PlayerRenderer;renderRightHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;)V")
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isModelPartShown(Lnet/minecraft/world/entity/player/PlayerModelPart;)Z")
     )
-    private void spectatorplus$mapHandFixRightHand(PlayerRenderer instance, PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player) {
-        instance.renderRightHand(poseStack, buffer, combinedLight, (AbstractClientPlayer) this.minecraft.cameraEntity);
-    }
-
-    @Redirect(
-            method = "renderMapHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/world/entity/HumanoidArm;)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/entity/player/PlayerRenderer;renderLeftHand(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;ILnet/minecraft/client/player/AbstractClientPlayer;)V")
-    )
-    private void spectatorplus$mapHandFixLeftHand(PlayerRenderer instance, PoseStack poseStack, MultiBufferSource buffer, int combinedLight, AbstractClientPlayer player) {
-        instance.renderLeftHand(poseStack, buffer, combinedLight, (AbstractClientPlayer) this.minecraft.cameraEntity);
+    private boolean spectatorplus$mapHandFixPartVisibility(LocalPlayer instance, PlayerModelPart playerModelPart) {
+        return ((Player) this.minecraft.cameraEntity).isModelPartShown(playerModelPart);
     }
 
     @Redirect(method = {
             "renderOneHandedMap(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IFLnet/minecraft/world/entity/HumanoidArm;FLnet/minecraft/world/item/ItemStack;)V",
             "renderTwoHandedMap(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;IFFF)V",
-            "renderArmWithItem(Lnet/minecraft/client/player/AbstractClientPlayer;FFLnet/minecraft/world/InteractionHand;FLnet/minecraft/world/item/ItemStack;FLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V"
     }, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;isInvisible()Z"))
     private boolean spectatorplus$spectatedInvisibility(LocalPlayer instance) {
         return this.minecraft.cameraEntity.isInvisible();

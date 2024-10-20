@@ -1,5 +1,6 @@
 package com.hpfxd.spectatorplus.fabric.client.gui.screens;
 
+import com.hpfxd.spectatorplus.fabric.client.mixin.screen.AbstractRecipeBookScreenAccessor;
 import com.hpfxd.spectatorplus.fabric.client.mixin.screen.ImageButtonAccessor;
 import net.minecraft.client.gui.components.ImageButton;
 import net.minecraft.client.gui.components.Renderable;
@@ -23,8 +24,9 @@ public class SyncedInventoryScreen extends InventoryScreen {
 
         this.syncOtherItems();
 
-        if (this.getRecipeBookComponent().isVisible()) {
-            this.getRecipeBookComponent().toggleVisibility();
+        final RecipeBookComponent<?> recipeBookComponent = ((AbstractRecipeBookScreenAccessor) this).getRecipeBookComponent();
+        if (recipeBookComponent.isVisible()) {
+            recipeBookComponent.toggleVisibility();
         }
     }
 
