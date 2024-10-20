@@ -154,7 +154,10 @@ public abstract class AbstractContainerScreenMixin {
     }
 
     @ModifyExpressionValue(
-            method = "render(Lnet/minecraft/client/gui/GuiGraphics;IIF)V",
+            method = {
+                    "renderSlotHighlightBack(Lnet/minecraft/client/gui/GuiGraphics;)V",
+                    "renderSlotHighlightFront(Lnet/minecraft/client/gui/GuiGraphics;)V"
+            },
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/inventory/Slot;isHighlightable()Z", ordinal = 0)
     )
     private boolean spectatorplus$hideHoverUntilMoveMouse(boolean original) {
