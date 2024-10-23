@@ -18,6 +18,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.Relative;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -32,13 +33,14 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Set;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends Player {
     @Shadow public ServerGamePacketListenerImpl connection;
-    @Shadow public abstract void teleportTo(ServerLevel newLevel, double x, double y, double z, float yaw, float pitch);
+    @Shadow public abstract boolean teleportTo(ServerLevel newLevel, double x, double y, double z, Set<Relative> relative, float yaw, float pitch, boolean resetCamera);
     @Shadow public abstract void setCamera(@Nullable Entity entityToSpectate);
 
     public ServerPlayerMixin(Level level, BlockPos pos, float yRot, GameProfile gameProfile) {
@@ -89,12 +91,8 @@ public abstract class ServerPlayerMixin extends Player {
     }
 
     @Inject(
-            method = "doTick()V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V", ordinal = 0),
-            slice = @Slice(
-                    from = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ComplexItem;getUpdatePacket(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;)Lnet/minecraft/network/protocol/Packet;", ordinal = 0),
-                    to = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;getHealth()F", ordinal = 0)
-            )
+            method = "synchronizeSpecialItemUpdates(Lnet/minecraft/world/item/ItemStack;)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/server/network/ServerGamePacketListenerImpl;send(Lnet/minecraft/network/protocol/Packet;)V", ordinal = 0)
     )
     private void spectatorplus$syncMapData(CallbackInfo ci, @Local Packet<?> packet) {
         // Send map packet to any spectators of this player. If this is only an update patch of a previously sent map,
@@ -118,7 +116,7 @@ public abstract class ServerPlayerMixin extends Player {
             }
         } else if (SpectatorMod.config.allowTransferBetweenLevels) {
             // Teleport ourselves to our camera
-            this.teleportTo((ServerLevel) entity.level(), entity.getX(), entity.getY(), entity.getZ(), entity.getYRot(), entity.getXRot());
+            this.teleportTo((ServerLevel) entity.level(), entity.getX(), entity.getY(), entity.getZ(), Set.of(), entity.getYRot(), entity.getXRot(), false);
 
             // Update the tracker of the other dimension for our cross-dimension teleport
             final var entityMap = ((ChunkMapAccessor) ((ServerLevel) entity.level()).getChunkSource().chunkMap).getEntityMap();

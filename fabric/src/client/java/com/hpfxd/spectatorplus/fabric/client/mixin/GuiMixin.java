@@ -17,6 +17,7 @@ import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.NonNullList;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
@@ -51,13 +52,13 @@ public abstract class GuiMixin {
         return instance.isScoping();
     }
 
-    @ModifyReceiver(method = "renderCameraOverlays(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;getArmor(I)Lnet/minecraft/world/item/ItemStack;"))
-    private Inventory spectatorplus$renderPumpkinOverlay(Inventory instance, int slot) {
+    @Redirect(method = "renderCameraOverlays(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getItemBySlot(Lnet/minecraft/world/entity/EquipmentSlot;)Lnet/minecraft/world/item/ItemStack;"))
+    private ItemStack spectatorplus$renderItemCameraOverlay(LocalPlayer instance, EquipmentSlot slot) {
         final AbstractClientPlayer spectated = SpecUtil.getCameraPlayer(this.minecraft);
         if (spectated != null) {
-            return spectated.getInventory();
+            return spectated.getItemBySlot(slot);
         }
-        return instance;
+        return instance.getItemBySlot(slot);
     }
 
     @Redirect(method = "renderCameraOverlays(Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/client/DeltaTracker;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/player/LocalPlayer;getTicksFrozen()I"))
