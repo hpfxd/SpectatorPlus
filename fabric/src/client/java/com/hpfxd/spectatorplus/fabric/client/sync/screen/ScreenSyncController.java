@@ -1,6 +1,7 @@
 package com.hpfxd.spectatorplus.fabric.client.sync.screen;
 
 import com.hpfxd.spectatorplus.fabric.client.gui.screens.SyncedInventoryScreen;
+import com.hpfxd.spectatorplus.fabric.client.mixin.InventoryAccessor;
 import com.hpfxd.spectatorplus.fabric.client.util.SpecUtil;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundInventorySyncPacket;
 import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundScreenCursorSyncPacket;
@@ -14,6 +15,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.MenuAccess;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.NonNullList;
+import net.minecraft.world.entity.EntityEquipment;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -120,10 +122,11 @@ public class ScreenSyncController {
             return false;
         }
 
-        syncedInventory = new Inventory(spectated);
+        EntityEquipment equipment = ((InventoryAccessor)spectated.getInventory()).getEquipment();
+        syncedInventory = new Inventory(spectated, equipment);
 
         for (int i = 0; i < syncData.screen.inventoryItems.size(); i++) {
-            syncedInventory.items.set(i, syncData.screen.inventoryItems.get(i));
+            syncedInventory.setItem(i, syncData.screen.inventoryItems.get(i));
         }
         return true;
     }

@@ -21,7 +21,7 @@ public record ClientboundSelectedSlotSyncPacket(
     public static final CustomPacketPayload.Type<ClientboundSelectedSlotSyncPacket> TYPE = new CustomPacketPayload.Type<>(ResourceLocation.parse("spectatorplus:selected_slot_sync"));
 
     public static ClientboundSelectedSlotSyncPacket initializing(ServerPlayer target) {
-        return new ClientboundSelectedSlotSyncPacket(target.getUUID(), target.getInventory().selected);
+        return new ClientboundSelectedSlotSyncPacket(target.getUUID(), target.getInventory().getSelectedSlot());
     }
 
     public ClientboundSelectedSlotSyncPacket(FriendlyByteBuf buf) {

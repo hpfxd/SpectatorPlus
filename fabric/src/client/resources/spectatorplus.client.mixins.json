@@ -9,6 +9,7 @@
     "GameRendererAccessor",
     "GameRendererMixin",
     "GuiMixin",
+    "InventoryAccessor",
     "ItemInHandRendererAccessor",
     "ItemInHandRendererMixin",
     "LevelRendererAccessor",

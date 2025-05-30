@@ -68,7 +68,7 @@ public abstract class ServerPlayerMixin extends Player {
             ServerSyncController.sendPacket(spectator, ClientboundSelectedSlotSyncPacket.initializing(target));
 
             // Send initial map data patch packet if the target has a map in inventory
-            for (final ItemStack stack : target.getInventory().items) {
+            for (final ItemStack stack : target.getInventory().getNonEquipmentItems()) {
                 if (stack.is(Items.FILLED_MAP)) {
                     final MapId mapId = stack.get(DataComponents.MAP_ID);
                     final MapItemSavedData mapItemSavedData = MapItem.getSavedData(mapId, this.level());

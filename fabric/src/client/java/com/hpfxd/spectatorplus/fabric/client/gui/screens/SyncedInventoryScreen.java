@@ -1,5 +1,6 @@
 package com.hpfxd.spectatorplus.fabric.client.gui.screens;
 
+import com.hpfxd.spectatorplus.fabric.client.mixin.InventoryAccessor;
 import com.hpfxd.spectatorplus.fabric.client.mixin.screen.AbstractRecipeBookScreenAccessor;
 import com.hpfxd.spectatorplus.fabric.client.mixin.screen.ImageButtonAccessor;
 import net.minecraft.client.gui.components.ImageButton;
@@ -9,6 +10,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.client.gui.screens.recipebook.RecipeBookComponent;
+import net.minecraft.world.entity.EntityEquipment;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 
@@ -36,11 +38,11 @@ public class SyncedInventoryScreen extends InventoryScreen {
         final Inventory playerInventory = menu.getOwner().getInventory();
         final Inventory fakeInventory = menu.getInventory();
 
-        for (int slot = 0; slot < playerInventory.armor.size(); slot++) {
-            fakeInventory.armor.set(slot, playerInventory.armor.get(slot));
-        }
+        final EntityEquipment playerEquipment = ((InventoryAccessor) (menu.getOwner().getInventory())).getEquipment();
+        final EntityEquipment fakeEquipment = ((InventoryAccessor) (menu.getInventory())).getEquipment();
 
-        fakeInventory.offhand.set(0, playerInventory.offhand.get(0));
+        fakeEquipment.setAll(playerEquipment);
+        fakeInventory.setItem(Inventory.SLOT_OFFHAND, playerInventory.getItem(Inventory.SLOT_OFFHAND));
     }
 
     @Override

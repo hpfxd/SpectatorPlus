@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 
 import java.io.IOException;
+import java.net.URI;
 
 public class ClothConfigIntegration {
     private ClothConfigIntegration() {
@@ -131,7 +132,7 @@ public class ClothConfigIntegration {
                 .build());
 
         category.addEntry(entryBuilder.startBooleanToggle(Component.translatable("gui.spectatorplus.config.server.autoUpdatePosition.name")
-                        .withStyle(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://bugs.mojang.com/browse/MC-148993"))), config.autoUpdatePosition)
+                .withStyle(style -> style.withClickEvent(new ClickEvent.OpenUrl(URI.create("https://bugs.mojang.com/browse/MC-148993")))), config.autoUpdatePosition)
                 .setTooltip(Component.translatable("gui.spectatorplus.config.server.autoUpdatePosition.tooltip", Component.literal("MC-148993").withStyle(ChatFormatting.BLUE, ChatFormatting.UNDERLINE)))
                 .setSaveConsumer(val -> config.autoUpdatePosition = val)
                 .setDefaultValue(defaults.autoUpdatePosition)
