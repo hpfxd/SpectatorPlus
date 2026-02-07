@@ -1,0 +1,31 @@
+package com.hpfxd.spectatorplus.fabric.mixin;
+
+import com.hpfxd.spectatorplus.fabric.sync.ServerSyncController;
+import com.hpfxd.spectatorplus.fabric.sync.handler.CursorSyncHandler;
+import com.hpfxd.spectatorplus.fabric.sync.packet.ClientboundSelectedSlotSyncPacket;
+import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
+import net.minecraft.network.protocol.game.ServerboundSetCarriedItemPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import org.objectweb.asm.Opcodes;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Mixin(ServerGamePacketListenerImpl.class)
+public abstract class ServerGamePacketListenerImplMixin {
+    @Shadow public ServerPlayer player;
+
+    @Inject(method = "handleSetCarriedItem(Lnet/minecraft/network/protocol/game/ServerboundSetCarriedItemPacket;)V", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Inventory;setSelectedSlot(I)V"))
+    private void spectatorplus$syncSelectedSlot(ServerboundSetCarriedItemPacket packet, CallbackInfo ci) {
+        ServerSyncController.broadcastPacketToSpectators(this.player, new ClientboundSelectedSlotSyncPacket(this.player.getUUID(), packet.getSlot()));
+    }
+
+    @Inject(method = "handleContainerClick(Lnet/minecraft/network/protocol/game/ServerboundContainerClickPacket;)V", at = @At("TAIL"))
+    private void spectatorplus$syncCursorAfterClick(ServerboundContainerClickPacket packet, CallbackInfo ci) {
+        // After handling container click, check if cursor item changed
+        CursorSyncHandler.onCursorChanged(this.player, this.player.containerMenu.getCarried(), packet.slotNum());
+    }
+}

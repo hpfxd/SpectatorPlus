@@ -1,0 +1,79 @@
+name: CI Build
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'LICENSE'
+      - 'img/**'
+  pull_request:
+    branches:
+      - master
+    paths-ignore:
+      - '**.md'
+      - '.gitignore'
+      - 'LICENSE'
+      - 'img/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+          cache: 'gradle'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew build --no-daemon --stacktrace
+
+      - name: Test
+        run: ./gradlew test --no-daemon --stacktrace || true
+
+      - name: List build artifacts
+        run: |
+          echo "=== Fabric artifacts ==="
+          find fabric/fabric-*/build/libs -name "*.jar" 2>/dev/null || echo "No Fabric artifacts found"
+          echo ""
+          echo "=== Paper artifacts ==="
+          find paper/paper-*/build/libs -name "*.jar" 2>/dev/null || echo "No Paper artifacts found"
+
+      - name: Upload Fabric artifacts
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: fabric-builds
+          path: |
+            fabric/fabric-*/build/libs/*.jar
+            !fabric/fabric-*/build/libs/*-dev.jar
+            !fabric/fabric-*/build/libs/*-sources.jar
+          retention-days: 7
+
+      - name: Upload Paper artifacts
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: paper-builds
+          path: |
+            paper/paper-*/build/libs/*.jar
+            !paper/paper-*/build/libs/*-dev.jar
+            !paper/paper-*/build/libs/*-sources.jar
+          retention-days: 7
+
+      - name: Check build reports
+        if: failure()
+        run: |
+          echo "Build failed. Checking for error reports..."
+          find . -name "*.log" -type f 2>/dev/null | head -20

@@ -13,12 +13,13 @@ plugins {
 rootProject.name = "spectatorplus"
 
 includeBuild("build-logic")
-this.setupSubproject("paper")
-this.setupSubproject("fabric")
 
-fun setupSubproject(moduleName: String) {
-    val name = "spectatorplus-$moduleName"
-    include(name)
-    val proj = project(":$name")
-    proj.projectDir = file(moduleName)
-}
+include("fabric")
+include("fabric:fabric-core")
+include("fabric:fabric-1.21.10")
+include("fabric:fabric-1.21.11")
+
+include("paper")
+include("paper:paper-core")
+include("paper:paper-1.21.10")
+include("paper:paper-1.21.11")

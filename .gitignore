@@ -3,6 +3,7 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
+run
 
 ### IntelliJ IDEA ###
 .idea/
@@ -34,3 +35,5 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+/SpectatorPlus_Structure_old.md
+/SpectatorPlus_Structure.md

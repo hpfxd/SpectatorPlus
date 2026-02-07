@@ -1,0 +1,9 @@
+accessWidener v2 named
+
+accessible class net/minecraft/server/level/ChunkMap$TrackedEntity
+
+accessible class net/minecraft/client/renderer/ItemInHandRenderer$HandRenderSelection
+accessible field net/minecraft/client/renderer/ItemInHandRenderer$HandRenderSelection renderMainHand Z
+accessible field net/minecraft/client/renderer/ItemInHandRenderer$HandRenderSelection renderOffHand Z
+
+accessible method net/minecraft/client/gui/Gui renderFood (Lnet/minecraft/client/gui/GuiGraphics;Lnet/minecraft/world/entity/player/Player;II)V
